@@ -82,6 +82,7 @@ func ListFoodsHandler(w http.ResponseWriter, r *http.Request) {
 		" FROM foods A " +
 		" LEFT OUTER JOIN measures B " +
 		" ON A.measure_id = B.id ORDER BY id ASC"
+	log.Println("Query: " + query)
 	rows, err := Db.Query(query)
 	sec.CheckInternalServerError(err, w)
 	var foods []mdl.Food

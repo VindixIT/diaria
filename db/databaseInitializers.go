@@ -29,6 +29,9 @@ func createFKey() {
 	db.Exec("ALTER TABLE ONLY public.items " +
 		" ADD CONSTRAINT meals_fkey FOREIGN KEY (meal_id)  " +
 		" REFERENCES public.meals(id) ON UPDATE RESTRICT ON DELETE RESTRICT")
+	db.Exec("ALTER TABLE ONLY public.foods " +
+		" ADD CONSTRAINT measures_fkey FOREIGN KEY (measure_id)  " +
+		" REFERENCES public.measures(id) ON UPDATE RESTRICT ON DELETE RESTRICT")
 }
 
 func createPKey() {
@@ -36,12 +39,14 @@ func createPKey() {
 	db.Exec("ALTER TABLE ONLY public.foods ADD CONSTRAINT foods_pkey PRIMARY KEY (id)")
 	db.Exec("ALTER TABLE ONLY public.meal_types ADD CONSTRAINT meal_types_pkey PRIMARY KEY (id)")
 	db.Exec("ALTER TABLE ONLY public.meals ADD CONSTRAINT meals_pkey PRIMARY KEY (id)")
+	db.Exec("ALTER TABLE ONLY public.measures ADD CONSTRAINT measures_pkey PRIMARY KEY (id)")
 	db.Exec("ALTER TABLE ONLY public.users ADD CONSTRAINT users_pkey PRIMARY KEY (id)")
 }
 
 func createAdmin() {
 	query := "INSERT INTO public.users (id, username, password, role) " +
 		" VALUES (1, 'aria', '$2a$14$C1DIYDsmE0QHjje4wR5uwOAC7m8/YAUe8DYw/yuKIAQgRDibeCDMy', 'admin')"
+	db.Exec("SELECT pg_catalog.setval('public.users_id_seq', 1, true)")
 	log.Println(query)
 	db.Exec(query)
 }
@@ -82,6 +87,13 @@ func createSeq() {
 		" NO MINVALUE" +
 		" NO MAXVALUE" +
 		" CACHE 1")
+	// Sequence USERS_ID_SEQ
+	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.users_id_seq " +
+		" START WITH 1" +
+		" INCREMENT BY 1" +
+		" NO MINVALUE" +
+		" NO MAXVALUE" +
+		" CACHE 1")
 }
 
 func createDropTable() {
@@ -89,6 +101,11 @@ func createDropTable() {
 }
 
 func createTable() {
+
+	// Table MEASURES
+	db.Exec("CREATE TABLE public.measures ( " +
+		"id integer DEFAULT nextval('public.measures_id_seq'::regclass) NOT NULL, " +
+		"name character varying(255) NOT NULL)")
 
 	// Table FOODS
 	db.Exec(" CREATE TABLE public.foods (" +
@@ -133,7 +150,7 @@ func createTable() {
 	// Table USERS
 	db.Exec(
 		" CREATE TABLE public.users ( " +
-			" id integer NOT NULL, " +
+			" id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass), " +
 			" username character varying(255) NOT NULL, " +
 			" password character varying(255) NOT NULL, " +
 			" role character varying(255) )")
