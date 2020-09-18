@@ -1,8 +1,8 @@
 package db
 
 import (
-	hd "beerwh/handlers"
 	"database/sql"
+	hd "diaria/handlers"
 	"log"
 )
 

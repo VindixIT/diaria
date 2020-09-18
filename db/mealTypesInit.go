@@ -1,7 +1,7 @@
 package db
 
 import (
-	hd "beerwh/handlers"
+	hd "diaria/handlers"
 )
 
 func InitMealTypes() {
