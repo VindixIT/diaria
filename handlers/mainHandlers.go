@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	mdl "diaria/models"
+	route "diaria/routes"
 	sec "diaria/security"
 	"golang.org/x/crypto/bcrypt"
 	//	"log"
@@ -15,7 +16,7 @@ var Db *sql.DB
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	//	log.Println("sec.Authenticated: " + strconv.FormatBool(sec.Authenticated))
 	sec.IsAuthenticated(w, r)
-	http.Redirect(w, r, "/listFoods", 200)
+	http.Redirect(w, r, route.MealsRoute, 200)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,10 +24,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "tmpl/login.html")
 		return
 	}
-	// grab user info from the submitted form
 	username := r.FormValue("usrname")
 	password := r.FormValue("psw")
-	// query database to get match username
 	var user mdl.User
 	// bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	err := Db.QueryRow("SELECT username, password FROM users WHERE username=$1", &username).Scan(&user.Username, &user.Password)
@@ -37,5 +36,5 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", 301)
 	}
 	sec.Authenticated = true
-	http.Redirect(w, r, "/listMeals", 301)
+	http.Redirect(w, r, route.MealsRoute, 301)
 }

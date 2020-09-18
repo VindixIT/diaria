@@ -16,7 +16,7 @@ import (
 
 // AJAX
 func ListItemsHandler(idMeal string) []mdl.Item {
-	log.Println("List Meals")
+	log.Println("List Items By Meal Id")
 	sql := "SELECT A.id, A.meal_id, A.food_id, B.name, " +
 		" A.quantidade_medida_usual, A.quantidade_g_ml, A.cho, A.kcal " +
 		" FROM items A, foods B WHERE A.meal_id= $1 AND A.food_id = B.id"

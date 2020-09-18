@@ -1,11 +1,13 @@
 package models
 
 import (
+	"database/sql"
 	"github.com/lib/pq"
 	"time"
 )
 
 type User struct {
+	Order    int
 	Id       int64  `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -13,15 +15,19 @@ type User struct {
 }
 
 type Food struct {
-	Id      int64   `json:"id"`
-	Name    string  `json:"name"`
-	Measure string  `json:"measure"`
-	Qtd     float64 `json:"qtd"`
-	Cho     float64 `json:"cho"`
-	Kcal    float64 `json:"kcal"`
+	Order       int
+	Id          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Measure     string    `json:"measure"`
+	MeasureName string    `json:"measureName"`
+	MeasureId   NullInt64 `json:"measureId"`
+	Qtd         float64   `json:"qtd"`
+	Cho         float64   `json:"cho"`
+	Kcal        float64   `json:"kcal"`
 }
 
 type Item struct {
+	Order      int
 	Id         int64   `json:"id"`
 	MealId     int64   `json:"mealId"`
 	FoodId     int64   `json:"foodId"`
@@ -33,6 +39,7 @@ type Item struct {
 }
 
 type Meal struct {
+	Order        int
 	Id           int64    `json:"id"`
 	MealTypeName string   `json:"mealTypeName"`
 	MealTypeId   int64    `json:"mealTypeId"`
@@ -51,7 +58,16 @@ type NullTime struct {
 	pq.NullTime
 }
 
+type NullInt64 struct {
+	sql.NullInt64
+}
+
+type NullString struct {
+	sql.NullString
+}
+
 type MealType struct {
+	Order    int
 	Id       int64     `json:"id"`
 	Name     string    `json:"name"`
 	StartAt  time.Time `json:"startAt"`
@@ -62,16 +78,31 @@ type MealType struct {
 }
 
 type Measure struct {
-	Id   int64  `json:"id"`
-	Name string `json:"name"`
+	Order    int
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	Selected bool
+}
+
+type PageMeasures struct {
+	Title    string
+	Measures []Measure
 }
 
 type PageMeals struct {
+	Title     string
 	Meals     []Meal
 	MealTypes []MealType
 	Foods     []Food
 }
 
 type PageMealTypes struct {
+	Title     string
 	MealTypes []MealType
+}
+
+type PageFoods struct {
+	Title    string
+	Foods    []Food
+	Measures []Measure
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	mdl "diaria/models"
+	route "diaria/routes"
 	sec "diaria/security"
 	"html/template"
 	"log"
@@ -24,7 +25,7 @@ func CreateMeasureHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		log.Println("INSERT: Id: " + strconv.Itoa(id) + " | Name: " + name)
 	}
-	http.Redirect(w, r, "/listMeasures", 301)
+	http.Redirect(w, r, route.MeasuresRoute, 301)
 }
 
 func UpdateMeasureHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +44,7 @@ func UpdateMeasureHandler(w http.ResponseWriter, r *http.Request) {
 		updtForm.Exec(name, id)
 		log.Println("UPDATE: Id: " + id + " | Name: " + name)
 	}
-	http.Redirect(w, r, "/listMeasures", 301)
+	http.Redirect(w, r, route.MeasuresRoute, 301)
 }
 
 func DeleteMeasureHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,31 +61,29 @@ func DeleteMeasureHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
 	}
-	http.Redirect(w, r, "/listMeasures", 301)
+	http.Redirect(w, r, route.MeasuresRoute, 301)
 }
 
 func ListMeasuresHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Measures")
-	// sec.IsAuthenticated(w, r)
+	sec.IsAuthenticated(w, r)
 	rows, err := Db.Query("SELECT * FROM measures")
 	sec.CheckInternalServerError(err, w)
-	var funcMap = template.FuncMap{
-		"multiplication": func(n float64, f float64) float64 {
-			return n * f
-		},
-		"addOne": func(n int) int {
-			return n + 1
-		},
-	}
 	var measures []mdl.Measure
 	var measure mdl.Measure
+	var i = 1
 	for rows.Next() {
 		err = rows.Scan(&measure.Id, &measure.Name)
 		sec.CheckInternalServerError(err, w)
+		measure.Order = i
+		i++
 		measures = append(measures, measure)
 	}
-	t, err := template.New("listMeasures.html").Funcs(funcMap).ParseFiles("tmpl/listMeasures.html")
-	sec.CheckInternalServerError(err, w)
-	err = t.Execute(w, measures)
+	var page mdl.PageMeasures
+	page.Measures = measures
+	page.Title = "Medidas Usuais"
+	var tmpl = template.Must(template.ParseGlob("tiles/measures/*"))
+	tmpl.ParseGlob("tiles/*")
+	tmpl.ExecuteTemplate(w, "Main-Measure", page)
 	sec.CheckInternalServerError(err, w)
 }

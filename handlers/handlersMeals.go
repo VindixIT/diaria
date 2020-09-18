@@ -5,11 +5,13 @@ import (
 	sec "diaria/security"
 	"encoding/json"
 	pq "github.com/lib/pq"
-	"html/template"
+	//	htemplate "html/template"
+	route "diaria/routes"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	ttemplate "text/template"
 	"time"
 )
 
@@ -69,7 +71,7 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 		l += " | Bolus: " + bolus
 		log.Println(l)
 	}
-	http.Redirect(w, r, "/listMeals", 301)
+	http.Redirect(w, r, route.MealsRoute, 301)
 }
 
 func extraiValor(arr []string) string {
@@ -100,7 +102,7 @@ func DeleteMealHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
 	}
-	http.Redirect(w, r, "/listMeals", 301)
+	http.Redirect(w, r, route.MealsRoute, 301)
 }
 
 func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
@@ -207,10 +209,11 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		UpdateItemsHandler(itemsPage, itemsDB) // TODO Comparando campo a campo os elementos de intersecção.
-		http.Redirect(w, r, "/listMeals", 301)
+		http.Redirect(w, r, route.MealsRoute, 301)
 	} else {
 		r.ParseForm()
 		var idMeal = r.FormValue("idMeal")
+		log.Println(idMeal)
 		items := ListItemsHandler(idMeal)
 		jsonItems, _ := json.Marshal(items)
 		w.Write([]byte(jsonItems))
@@ -237,19 +240,49 @@ func remove(items []mdl.Item, itemToBeRemoved mdl.Item) []mdl.Item {
 	return newItems
 }
 
-func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("List Meals")
+func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Listar Meals")
 	sec.IsAuthenticated(w, r)
-	rows, err := Db.Query(
-		"SELECT " +
-			" a.id, b.id, b.name, a.date, a.start_at, a.end_at, " +
-			"coalesce(to_char(a.date,'DD/MM/YYYY'),'') as c_date, " +
-			"coalesce(to_char(a.start_at,'HH24:MI:SS'),'') as c_start_at, " +
-			"coalesce(to_char(a.end_at,'HH24:MI:SS'),'') as c_end_at, " +
-			"coalesce(a.bolus,0.00) as bolus " +
-			"FROM meals a, meal_types b WHERE a.meal_type_id = b.id order by a.id desc")
+	query := "SELECT " +
+		"R1.meal_id, " +
+		"R1.meal_type_id, " +
+		"R1.meal_type_name, " +
+		"R1.meal_date, " +
+		"R1.start_at, " +
+		"R1.end_at, " +
+		"R1.c_meal_date, " +
+		"R1.c_start_at, " +
+		"R1.c_end_at, " +
+		"R2.cho_total," +
+		"R2.kcal_total, " +
+		"R1.bolus " +
+		"FROM " +
+		"( " +
+		"SELECT  " +
+		"a.id as meal_id, b.id as meal_type_id, b.name as meal_type_name, " +
+		"a.date as meal_date, a.start_at as start_at, a.end_at as end_at, " +
+		"coalesce(to_char(a.date,'DD/MM/YYYY'),'') as c_meal_date, " +
+		"coalesce(to_char(a.start_at,'HH24:MI:SS'),'') as c_start_at, " +
+		"coalesce(to_char(a.end_at,'HH24:MI:SS'),'') as c_end_at, " +
+		"coalesce(a.bolus,0.00) as bolus FROM " +
+		"meals a, meal_types b " +
+		"WHERE a.meal_type_id = b.id " +
+		"order by a.id desc " +
+		") R1, " +
+		"(SELECT a.id as meal_id, " +
+		"sum(b.cho) as cho_total, " +
+		"sum(b.kcal) as kcal_total " +
+		"from meals a, items b " +
+		"where a.id = b.meal_id " +
+		"group by a.id " +
+		"order by a.id desc " +
+		" ) R2 " +
+		"WHERE R1.meal_id = R2.meal_id "
+
+	log.Println("QUERY: " + query)
+	rows, err := Db.Query(query)
 	sec.CheckInternalServerError(err, w)
-	var funcMap = template.FuncMap{
+	var funcMap = ttemplate.FuncMap{
 		"multiplication": func(n float64, f float64) float64 {
 			return n * f
 		},
@@ -259,6 +292,7 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var meals []mdl.Meal
 	var meal mdl.Meal
+	var i = 1
 	for rows.Next() {
 		err = rows.Scan(
 			&meal.Id,
@@ -270,8 +304,12 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 			&meal.CDate,
 			&meal.CStartAt,
 			&meal.CEndAt,
+			&meal.CCho,
+			&meal.CKcal,
 			&meal.Bolus)
 		sec.CheckInternalServerError(err, w)
+		meal.Order = i
+		i++
 		meals = append(meals, meal)
 	}
 	rows, err = Db.Query("SELECT id, name, start_at, end_at FROM meal_types")
@@ -310,14 +348,15 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		foods = append(foods, food)
 	}
-	// AJAX
-	t, err := template.New("listMeals.html").Funcs(funcMap).ParseFiles("tmpl/listMeals.html")
-	sec.CheckInternalServerError(err, w)
 	var page mdl.PageMeals
 	page.Meals = meals
 	page.MealTypes = mealTypes
 	page.Foods = foods
-	err = t.Execute(w, page)
+	page.Title = "Refeições"
+	var tmpl = ttemplate.Must(ttemplate.ParseGlob("tiles/meals/*"))
+	tmpl.ParseGlob("tiles/*")
+	tmpl.Funcs(funcMap)
+	tmpl.ExecuteTemplate(w, "Main-Meal", page)
 	sec.CheckInternalServerError(err, w)
 }
 

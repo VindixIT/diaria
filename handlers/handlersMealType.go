@@ -2,6 +2,7 @@ package handlers
 
 import (
 	mdl "diaria/models"
+	route "diaria/routes"
 	sec "diaria/security"
 	"html/template"
 	"log"
@@ -24,7 +25,7 @@ func CreateMealTypeHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		log.Println("INSERT: Id: " + strconv.Itoa(id) + " | Name: " + name)
 	}
-	http.Redirect(w, r, "/listMealTypes", 301)
+	http.Redirect(w, r, route.MealTypesRoute, 301)
 }
 
 func UpdateMealTypeHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +44,7 @@ func UpdateMealTypeHandler(w http.ResponseWriter, r *http.Request) {
 		updtForm.Exec(name, id)
 		log.Println("UPDATE: Id: " + id + " | Name: " + name)
 	}
-	http.Redirect(w, r, "/listMealTypes", 301)
+	http.Redirect(w, r, route.MealTypesRoute, 301)
 }
 
 func DeleteMealTypeHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +61,7 @@ func DeleteMealTypeHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
 	}
-	http.Redirect(w, r, "/listMealTypes", 301)
+	http.Redirect(w, r, route.MealTypesRoute, 301)
 }
 
 func ListMealTypesHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,25 +69,21 @@ func ListMealTypesHandler(w http.ResponseWriter, r *http.Request) {
 	sec.IsAuthenticated(w, r)
 	rows, err := Db.Query("SELECT id, name, start_at, end_at, to_char(start_at,'HH24:MI:SS') as c_start_at, to_char(end_at,'HH24:MI:SS') as c_end_at FROM meal_types")
 	sec.CheckInternalServerError(err, w)
-	var funcMap = template.FuncMap{
-		"multiplication": func(n float64, f float64) float64 {
-			return n * f
-		},
-		"addOne": func(n int) int {
-			return n + 1
-		},
-	}
 	var mealTypes []mdl.MealType
 	var mealType mdl.MealType
+	var i = 1
 	for rows.Next() {
 		err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt, &mealType.CStartAt, &mealType.CEndAt)
+		mealType.Order = i
+		i++
 		sec.CheckInternalServerError(err, w)
 		mealTypes = append(mealTypes, mealType)
 	}
-	t, err := template.New("listMealTypes.html").Funcs(funcMap).ParseFiles("tmpl/listMealTypes.html")
-	sec.CheckInternalServerError(err, w)
 	var page mdl.PageMealTypes
 	page.MealTypes = mealTypes
-	err = t.Execute(w, page)
+	page.Title = "Tipos de Refeições"
+	var tmpl = template.Must(template.ParseGlob("tiles/mealTypes/*"))
+	tmpl.ParseGlob("tiles/*")
+	tmpl.ExecuteTemplate(w, "Main-Meal-Type", page)
 	sec.CheckInternalServerError(err, w)
 }
