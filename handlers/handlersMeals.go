@@ -389,6 +389,6 @@ func GetNow() time.Time {
 }
 
 func GetMidnight() time.Time {
-	t := time.Date(0000, time.January, 0, 24, 0, 0, 1, time.UTC)
+	t := time.Date(0000, time.January, 0, 24, 0, 0, 1, time.LoadLocation("America/Sao_Paulo"))
 	return t
 }
