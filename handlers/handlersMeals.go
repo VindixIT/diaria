@@ -375,8 +375,12 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetNow() time.Time {
-	now := time.Now().String()
-	txtNow := strings.Split(strings.Split(strings.Split(now, " ")[1], ".")[0], ":")
+	br, _ := time.LoadLocation("America/Sao_Paulo")
+	now := time.Now()
+	now = time.Date(now.Year(), now.Month(), now.Day(),
+		now.Hour(), now.Minute(), now.Second(), 0, br)
+	strNow := now.String()
+	txtNow := strings.Split(strings.Split(strings.Split(strNow, " ")[1], ".")[0], ":")
 	hora, _ := strconv.Atoi(txtNow[0])
 	minuto, _ := strconv.Atoi(txtNow[1])
 	segundo, _ := strconv.Atoi(txtNow[2])
@@ -389,6 +393,6 @@ func GetNow() time.Time {
 }
 
 func GetMidnight() time.Time {
-	t := time.Date(0000, time.January, 0, 24, 0, 0, 1, time.LoadLocation("America/Sao_Paulo"))
+	t := time.Date(0000, time.January, 0, 24, 0, 0, 1, time.UTC)
 	return t
 }
