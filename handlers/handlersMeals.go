@@ -350,8 +350,7 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 	query = "SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
 		"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc"
 	log.Println(query)
-	rows, err = Db.Query("SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
-		"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc")
+	rows, err = Db.Query(query)
 	sec.CheckInternalServerError(err, w)
 	var foods []mdl.Food
 	var food mdl.Food
