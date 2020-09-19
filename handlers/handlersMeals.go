@@ -47,7 +47,7 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 				array := strings.Split(value[0], "#")
 				foodid := strings.Split(array[2], ":")[1]
 				qtdMedida := extraiValor(strings.Split(array[4], ":"))
-				log.Println(qtdMedida)
+				//				log.Println(qtdMedida)
 				qtd := extraiValor(strings.Split(array[5], ":"))
 				cho := extraiValor(strings.Split(array[6], ":"))
 				kcal := extraiValor(strings.Split(array[7], ":"))
@@ -152,7 +152,7 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(array)
 				itemid := strings.Split(array[0], ":")[1]
 				foodid := strings.Split(array[2], ":")[1]
-				qtdMeasure := extraiValor(strings.Split(array[3], ":"))
+				qtdMedida := extraiValor(strings.Split(array[4], ":"))
 				qtd := extraiValor(strings.Split(array[5], ":"))
 				cho := extraiValor(strings.Split(array[6], ":"))
 				kcal := extraiValor(strings.Split(array[7], ":"))
@@ -162,7 +162,7 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 				itemPage.FoodId = m
 				o, _ := strconv.ParseInt(mealId, 10, 64)
 				itemPage.MealId = o
-				p, _ := strconv.ParseFloat(qtdMeasure, 64)
+				p, _ := strconv.ParseFloat(qtdMedida, 64)
 				itemPage.QtdMedida = p
 				q, _ := strconv.ParseFloat(qtd, 64)
 				itemPage.Qtd = q
