@@ -11,6 +11,9 @@ function regraDeTresQtd(e, form){
 		}
 	}
 	var qtdInformada = e.value;
+	var qtdMedidaInput = document.getElementById('qtdMedida-'+form);
+	qtdMedidaInput.readOnly = true;
+	qtdMedidaInput.disabled = true;
 	var x = cho*qtdInformada/qtd;
 	x = Math.round((x + Number.EPSILON) * 100) / 100
 	var y = kcal*qtdInformada/qtd;

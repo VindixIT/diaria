@@ -46,13 +46,9 @@ function criarItem(){
 function editarItem(){
 	var a = document.getElementById('alimento-edit');
 	var id = document.getElementById('id-edit').value;
-	alert(id);
 	var mealid = document.getElementById('meal-id-edit').value;
-	alert(mealid);
 	var foodid = a.options[a.selectedIndex].value;
-	alert(foodid);
 	var foodName = a.options[a.selectedIndex].text;
-	alert(foodName);
 	var qtdMedida = document.getElementById('qtdMedida-edit').value;
 	var qtd = document.getElementById('qtd-edit').value;
 	var cho = document.getElementById('cho-edit').value;
@@ -111,12 +107,21 @@ function updateitem(e) {
 	var editItemForm = document.getElementById('edit-item-form');
 	editItemForm.style.display = 'block';
 	var id = e.parentNode.parentNode.childNodes[0].childNodes[1].value;
+	// alert('id: '+id);
 	var mealId = document.getElementById('MealIdForUpdate').value;
+	// alert('mealId: '+mealId);
 	var foodId = e.parentNode.parentNode.childNodes[0].childNodes[2].value;
+	// alert('foodId: '+foodId);
 	var order = e.parentNode.parentNode.childNodes[0].childNodes[0].value;
+	// alert('order: '+order);
+	var qtdMedida = e.parentNode.parentNode.childNodes[1].childNodes[0].value;
+	// alert('qtdMedida: '+qtdMedida);
 	var qtd = e.parentNode.parentNode.childNodes[1].innerText;
+	// alert('qtd: '+qtd);
 	var cho = e.parentNode.parentNode.childNodes[2].innerText;
+	// alert('cho: '+cho);
 	var kcal = e.parentNode.parentNode.childNodes[3].innerText;
+	//alert('kcal: '+kcal);
 	// Atribuindo os valores de edit-item-form
 	document.getElementById('id-edit').value=id;
 	document.getElementById('meal-id-edit').value=mealId;
@@ -128,6 +133,7 @@ function updateitem(e) {
 		}	
 	}
 	document.getElementById('qtd-edit').value=qtd;
+	document.getElementById('qtdMedida-edit').value=qtdMedida;
 	document.getElementById('cho-edit').value=cho;
 	document.getElementById('kcal-edit').value=kcal;
 	document.getElementById('order-edit').value=order;

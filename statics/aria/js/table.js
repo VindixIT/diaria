@@ -27,6 +27,7 @@ function addRow(tableID) {
 	// qtd
 	newCell = newRow.insertCell(1);
 	newText = document.createTextNode(item.qtd);
+	newCell.innerHTML = '<input type="hidden" name="qtdMeasure" value="'+item.qtdMeasure+'"/>'+newCell.innerHTML;
 	newCell.appendChild(newText);
 	// cho
 	newCell = newRow.insertCell(2);
@@ -41,6 +42,7 @@ function addRow(tableID) {
 	// Botão Editar
 	var btnEditar = document.createElement('input');
 	btnEditar.type = "button";
+	btnEditar.style = "margin-right: 10px";
 	btnEditar.className = "w3-btn w3-teal";
 	btnEditar.value = "Editar";
 	btnEditar.onclick = function() {updateitem(btnEditar)};
