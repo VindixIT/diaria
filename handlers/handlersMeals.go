@@ -253,9 +253,9 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 		"R1.c_meal_date, " +
 		"R1.c_start_at, " +
 		"R1.c_end_at, " +
-		"R2.cho_total," +
-		"R2.kcal_total, " +
-		"R1.bolus " +
+		"coalesce(R2.cho_total,0)," +
+		"coalesce(R2.kcal_total,0), " +
+		"coalesce(R1.bolus,0) " +
 		"FROM " +
 		"( " +
 		"SELECT  " +
@@ -268,7 +268,7 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 		"meals a, meal_types b " +
 		"WHERE a.meal_type_id = b.id " +
 		"order by a.id desc " +
-		") R1, " +
+		") R1 LEFT OUTER JOIN " +
 		"(SELECT a.id as meal_id, " +
 		"sum(b.cho) as cho_total, " +
 		"sum(b.kcal) as kcal_total " +
@@ -277,7 +277,7 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 		"group by a.id " +
 		"order by a.id desc " +
 		" ) R2 " +
-		"WHERE R1.meal_id = R2.meal_id "
+		"ON R1.meal_id = R2.meal_id "
 
 	log.Println("QUERY: " + query)
 	rows, err := Db.Query(query)
@@ -321,16 +321,24 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 		err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt)
 		sec.CheckInternalServerError(err, w)
 		if mealType.EndAt.Before(mealType.StartAt) {
+			//			log.Println("mealType.EndAt.Before(mealType.StartAt)")
 			if mealType.StartAt.Before(now) && GetMidnight().After(now) {
 				mealType.Selected = true
 			} else {
+				//				log.Println("GetMidnight().Before(now) && mealType.EndAt.After(now)")
+				//				log.Println("now: " + now.String())
+				//				log.Println("midnight: " + GetMidnight().String())
+				//				log.Println("mealType.EndAt: " + mealType.EndAt.String())
 				if GetMidnight().Before(now) && mealType.EndAt.After(now) {
+					//					log.Println("true")
 					mealType.Selected = true
 				} else {
+					//					log.Println("false")
 					mealType.Selected = false
 				}
 			}
 		} else {
+			//			log.Println("mealType.StartAt.Before(now) && mealType.EndAt.After(now)")
 			if mealType.StartAt.Before(now) && mealType.EndAt.After(now) {
 				mealType.Selected = true
 			} else {
@@ -339,7 +347,11 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		mealTypes = append(mealTypes, mealType)
 	}
-	rows, err = Db.Query("SELECT id, name, measure, qtd, cho, kcal FROM foods order by id asc")
+	query = "SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
+		"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc"
+	log.Println(query)
+	rows, err = Db.Query("SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
+		"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc")
 	sec.CheckInternalServerError(err, w)
 	var foods []mdl.Food
 	var food mdl.Food
@@ -370,10 +382,11 @@ func GetNow() time.Time {
 		hora,
 		minuto,
 		segundo, 0, time.UTC)
+	//	t := time.Date(0000, time.January, 0, 24, 5, 58, 0, time.UTC)
 	return t
 }
 
 func GetMidnight() time.Time {
-	t := time.Date(0000, time.January, 1, 24, 0, 0, 0, time.UTC)
+	t := time.Date(0000, time.January, 0, 24, 0, 0, 1, time.UTC)
 	return t
 }

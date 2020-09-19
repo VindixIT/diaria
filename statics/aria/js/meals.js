@@ -34,7 +34,13 @@ function deletemeal(e) {
 function changeLabelMeasure(e){
 	var labelMeasure = document.getElementById('labelMeasure');
 	var id = e.options[e.selectedIndex].value;
-	medidaUsual = ar[id].split("#")[1];
+	medidaUsual = "medida usual";
+	for(n=0;n<ar.length;n++){
+		if(ar[n].split("#")[0] == id){
+			medidaUsual = ar[n].split("#")[1];
+			break;
+		}
+	}
 	labelMeasure.innerText = "Quantidade de "+medidaUsual;
 }
 	

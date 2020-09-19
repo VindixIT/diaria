@@ -157,5 +157,4 @@ func InitMeasures() {
 	db.Exec("INSERT INTO public.measures (id, name) VALUES (159, 'xícara de café')")
 	db.Exec("INSERT INTO public.measures (id, name) VALUES (160, 'xícara de chá cheia')")
 	db.Exec("INSERT INTO public.measures (id, name) VALUES (161, 'xícara')")
-	db.Exec("SELECT pg_catalog.setval('public.measures_id_seq', 165, true)")
 }

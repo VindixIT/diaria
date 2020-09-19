@@ -54,7 +54,7 @@ func createAdmin() {
 func createSeq() {
 	// Sequence FOODS_ID_SEQ
 	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.foods_id_seq " +
-		" START WITH 1" +
+		" START WITH 1260" +
 		" INCREMENT BY 1" +
 		" NO MINVALUE" +
 		" NO MAXVALUE" +
@@ -68,7 +68,7 @@ func createSeq() {
 		" CACHE 1")
 	// Sequence MEAL_TYPE_ID_SEQ
 	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.meal_type_id_seq " +
-		" START WITH 1" +
+		" START WITH 7" +
 		" INCREMENT BY 1" +
 		" NO MINVALUE" +
 		" NO MAXVALUE" +
@@ -82,14 +82,14 @@ func createSeq() {
 		" CACHE 1")
 	// Sequence MEASURES_ID_SEQ
 	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.measures_id_seq " +
-		" START WITH 1" +
+		" START WITH 165" +
 		" INCREMENT BY 1" +
 		" NO MINVALUE" +
 		" NO MAXVALUE" +
 		" CACHE 1")
 	// Sequence USERS_ID_SEQ
 	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.users_id_seq " +
-		" START WITH 1" +
+		" START WITH 2" +
 		" INCREMENT BY 1" +
 		" NO MINVALUE" +
 		" NO MAXVALUE" +
