@@ -22,13 +22,21 @@ function regraDeTresQtd(e, form){
 }
 
 function regraDeTresMedida(e,form){
-	var a = document.getElementById('alimento'+form);
-	var id = a.options[a.selectedIndex].value;
-	var array = ar[id].split("#")
-	var qtd = 1;
-	var cho = array[3];
-	var kcal = array[4];
+	var id = document.getElementById('alimento-'+form).value;
+	for(n=0;n<ar.length;n++){
+		if(ar[n].split("#")[0] == id){
+			var array = ar[n].split("#")
+			var qtd = array[2];
+			var cho = array[3];
+			var kcal = array[4];
+			break;
+		}
+	}
 	var qtdInformada = e.value;
+	var qtdInput = document.getElementById('qtd-'+form);
+	qtdInput.readOnly = true;
+	qtdInput.disabled = true;
+	qtdInput.value = qtd*qtdInformada;
 	var x = cho*qtdInformada/qtd;
 	var y = kcal*qtdInformada/qtd;
 	var choInput = document.getElementById('cho-'+form);
