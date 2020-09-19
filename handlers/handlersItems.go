@@ -25,7 +25,7 @@ func ListItemsHandler(idMeal string) []mdl.Item {
 	var items []mdl.Item
 	var item mdl.Item
 	for rows.Next() {
-		rows.Scan(&item.Id, &item.MealId, &item.FoodId, &item.FoodName, &item.QtdMeasure, &item.Qtd, &item.Cho, &item.Kcal)
+		rows.Scan(&item.Id, &item.MealId, &item.FoodId, &item.FoodName, &item.QtdMedida, &item.Qtd, &item.Cho, &item.Kcal)
 		items = append(items, item)
 	}
 	return items
@@ -67,7 +67,7 @@ func hasSomeFieldChanged(itemPage mdl.Item, itemDB mdl.Item) bool {
 		return true
 	} else if itemPage.Qtd != itemDB.Qtd {
 		return true
-	} else if itemPage.QtdMeasure != itemDB.QtdMeasure {
+	} else if itemPage.QtdMedida != itemDB.QtdMedida {
 		return true
 	} else {
 		return false
@@ -78,7 +78,7 @@ func updateItemHandler(i mdl.Item, itemDB mdl.Item) {
 		"cho=$1, food_id=$2, meal_id=$3, kcal=$4, " +
 		"quantidade_g_ml=$5, quantidade_medida_usual=$6  WHERE id=$7"
 	updtForm, _ := Db.Prepare(sqlStatement)
-	updtForm.Exec(i.Cho, i.FoodId, i.MealId, i.Kcal, i.Qtd, i.QtdMeasure, i.Id)
+	updtForm.Exec(i.Cho, i.FoodId, i.MealId, i.Kcal, i.Qtd, i.QtdMedida, i.Id)
 	log.Println("UPDATE: " + sqlStatement)
 }
 
@@ -101,8 +101,8 @@ func updateItemHandlerDynamic(itemPage mdl.Item, itemDB mdl.Item) {
 	if itemPage.Qtd != itemDB.Qtd {
 		sql2 += "quantidade_g_ml=" + strconv.FormatFloat(itemDB.Qtd, 2, 10, 64) + " ,"
 	}
-	if itemPage.QtdMeasure != itemDB.QtdMeasure {
-		sql2 += "quantidade_medida_usual=" + strconv.FormatFloat(itemDB.QtdMeasure, 2, 10, 64) + " ,"
+	if itemPage.QtdMedida != itemDB.QtdMedida {
+		sql2 += "quantidade_medida_usual=" + strconv.FormatFloat(itemDB.QtdMedida, 2, 10, 64) + " ,"
 	}
 	// Removendo a última vírgula de sql2
 	sql2 = sql2[0 : len(sql2)-1]
@@ -134,7 +134,7 @@ func CreateNewItemHandler(w http.ResponseWriter, diffPage []mdl.Item) {
 		log.Println(item)
 		sqlStatement := "INSERT INTO items(meal_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal, food_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
 		log.Println(sqlStatement)
-		err := Db.QueryRow(sqlStatement, item.MealId, item.QtdMeasure, item.Qtd, item.Cho, item.Kcal, item.FoodId).Scan(&itemid)
+		err := Db.QueryRow(sqlStatement, item.MealId, item.QtdMedida, item.Qtd, item.Cho, item.Kcal, item.FoodId).Scan(&itemid)
 		sec.CheckInternalServerError(err, w)
 		if err != nil {
 			panic(err.Error())

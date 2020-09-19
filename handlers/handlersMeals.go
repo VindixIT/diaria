@@ -43,14 +43,14 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 
 		for key, value := range r.Form {
 			if strings.HasPrefix(key, "item") {
-				//				log.Println(value)
+				log.Println(value)
 				array := strings.Split(value[0], "#")
 				foodid := strings.Split(array[2], ":")[1]
 				//				alimento := array[2]
-				qtdMedida := extraiValor(strings.Split(array[4], ":"))
-				qtd := extraiValor(strings.Split(array[5], ":"))
-				cho := extraiValor(strings.Split(array[6], ":"))
-				kcal := extraiValor(strings.Split(array[7], ":"))
+				qtdMedida := extraiValor(strings.Split(array[2], ":"))
+				qtd := extraiValor(strings.Split(array[3], ":"))
+				cho := extraiValor(strings.Split(array[4], ":"))
+				kcal := extraiValor(strings.Split(array[5], ":"))
 				itemid := 0
 				log.Println("foodid: " + foodid)
 				sqlStatement := "INSERT INTO items(meal_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal, food_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
@@ -162,7 +162,7 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 				o, _ := strconv.ParseInt(mealId, 10, 64)
 				itemPage.MealId = o
 				p, _ := strconv.ParseFloat(qtdMeasure, 64)
-				itemPage.QtdMeasure = p
+				itemPage.QtdMedida = p
 				q, _ := strconv.ParseFloat(qtd, 64)
 				itemPage.Qtd = q
 				r, _ := strconv.ParseFloat(cho, 64)
@@ -202,7 +202,7 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(item)
 				sqlStatement := "INSERT INTO items(meal_id, food_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
 				log.Println(sqlStatement)
-				err := Db.QueryRow(sqlStatement, item.MealId, item.FoodId, item.QtdMeasure, item.Qtd, item.Cho, item.Kcal).Scan(&itemId)
+				err := Db.QueryRow(sqlStatement, item.MealId, item.FoodId, item.QtdMedida, item.Qtd, item.Cho, item.Kcal).Scan(&itemId)
 				sec.CheckInternalServerError(err, w)
 				if err != nil {
 					panic(err.Error())

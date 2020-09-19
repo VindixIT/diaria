@@ -2,12 +2,12 @@
 var item_tobe_deleted;
 	
 class Item {
-	constructor(id, mealId, foodId, foodName, qtdMeasure, qtd, cho, kcal) {
+	constructor(id, mealId, foodId, foodName, qtdMedida, qtd, cho, kcal) {
 	this.id = id;
 	this.mealId = mealId;
 	this.foodId = foodId;
 	this.foodName = foodName;
-	this.qtdMeasure = qtdMeasure;
+	this.qtdMedida = qtdMedida;
 	this.qtd = qtd;
 	this.cho = cho;
 	this.kcal = kcal;
@@ -19,7 +19,6 @@ function criarItem(){
 	var foodId = a.options[a.selectedIndex].value;
 	//alert(foodId);
 	var foodName = a.options[a.selectedIndex].text;
-	//alert('foodName '+foodName);
 	var qtdMedida = document.getElementById('qtdMedida-create').value;
 	//alert('qtdMedida '+qtdMedida);
 	var qtd = document.getElementById('qtd-create').value;
@@ -36,9 +35,9 @@ function criarItem(){
 		alert(erros);
 		return;
 	}
-	item = new Item(items.length, "", foodId, foodName, qtdMedida, qtd, cho, kcal);
+	item = new Item(items.length, "", foodId, "", qtdMedida, qtd, cho, kcal);
 	items.push(item);
-	addRow("table-items-"+contexto);
+	addRow("table-items-"+contexto, foodName);
 	limparCamposItemForm('create');
 	document.getElementById('create-item-form').style.display='none';
 }
@@ -65,9 +64,9 @@ function editarItem(){
 		alert(erros);
 		return;
 	}
-	item = new Item(id, mealid, foodid, foodName, qtdMedida, qtd, cho, kcal);
+	item = new Item(id, mealid, foodid, "", qtdMedida, qtd, cho, kcal);
 	items[order]=item;
-	updateRow("table-items-"+contexto,order);
+	updateRow("table-items-"+contexto,order,foodName);
 	limparCamposItemForm('edit');
 	document.getElementById('edit-item-form').style.display='none';
 }

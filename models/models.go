@@ -27,14 +27,14 @@ type Food struct {
 }
 
 type Item struct {
-	Id         int64   `json:"id"`
-	MealId     int64   `json:"mealId"`
-	FoodId     int64   `json:"foodId"`
-	FoodName   string  `json:"foodName"`
-	QtdMeasure float64 `json:"qtdMeasure"`
-	Qtd        float64 `json:"qtd"`
-	Cho        float64 `json:"cho"`
-	Kcal       float64 `json:"kcal"`
+	Id        int64   `json:"id"`
+	MealId    int64   `json:"mealId"`
+	FoodId    int64   `json:"foodId"`
+	FoodName  string  `json:"foodName"`
+	QtdMedida float64 `json:"qtdMedida"`
+	Qtd       float64 `json:"qtd"`
+	Cho       float64 `json:"cho"`
+	Kcal      float64 `json:"kcal"`
 }
 
 type Meal struct {
