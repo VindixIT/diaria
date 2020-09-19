@@ -17,8 +17,11 @@ class Item {
 function criarItem(){
 	var a = document.getElementById('alimento-create');
 	var foodId = a.options[a.selectedIndex].value;
+	//alert(foodId);
 	var foodName = a.options[a.selectedIndex].text;
+	//alert('foodName '+foodName);
 	var qtdMedida = document.getElementById('qtdMedida-create').value;
+	//alert('qtdMedida '+qtdMedida);
 	var qtd = document.getElementById('qtd-create').value;
 	var cho = document.getElementById('cho-create').value;
 	var kcal = document.getElementById('kcal-create').value;
@@ -33,7 +36,7 @@ function criarItem(){
 		alert(erros);
 		return;
 	}
-	item = new Item(items.length, "",foodId, foodName, qtdMedida, qtd, cho, kcal);
+	item = new Item(items.length, "", foodId, foodName, qtdMedida, qtd, cho, kcal);
 	items.push(item);
 	addRow("table-items-"+contexto);
 	limparCamposItemForm('create');
@@ -43,9 +46,13 @@ function criarItem(){
 function editarItem(){
 	var a = document.getElementById('alimento-edit');
 	var id = document.getElementById('id-edit').value;
+	alert(id);
 	var mealid = document.getElementById('meal-id-edit').value;
+	alert(mealid);
 	var foodid = a.options[a.selectedIndex].value;
-	var alimento = a.options[a.selectedIndex].text;
+	alert(foodid);
+	var foodName = a.options[a.selectedIndex].text;
+	alert(foodName);
 	var qtdMedida = document.getElementById('qtdMedida-edit').value;
 	var qtd = document.getElementById('qtd-edit').value;
 	var cho = document.getElementById('cho-edit').value;
@@ -62,7 +69,7 @@ function editarItem(){
 		alert(erros);
 		return;
 	}
-	item = new Item(id, mealid, foodid, alimento, qtdMedida, qtd, cho, kcal);
+	item = new Item(id, mealid, foodid, foodName, qtdMedida, qtd, cho, kcal);
 	items[order]=item;
 	updateRow("table-items-"+contexto,order);
 	limparCamposItemForm('edit');

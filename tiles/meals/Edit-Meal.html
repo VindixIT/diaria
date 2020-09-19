@@ -12,9 +12,8 @@
 
             <form class="w3-container" action="/updateMeal" method="post">
                 <label class="w3-label">Tipo de Refeição</label>
-				<br>	
 				<input type="hidden" name="Id" id="MealIdForUpdate">
-	            <select name="MealTypeForUpdate" id="MealTypeForUpdate">
+	            <select class="w3-input" name="MealTypeForUpdate" id="MealTypeForUpdate">
 					<option value=""></option>
 					{{range $index, $mealType := . }}
 		                <option value="{{$mealType.Id}}">
@@ -22,8 +21,6 @@
 						</option>
 		            {{end}}
 	            </select>
-				<br>
-				<br>
                 <label class="w3-label">Data</label>
                 <input class="w3-input" type="date" id="DateForUpdate" name="DateForUpdate" value="">
                 <label class="w3-label">Horário Inicial</label>

@@ -27,7 +27,6 @@ type Food struct {
 }
 
 type Item struct {
-	Order      int
 	Id         int64   `json:"id"`
 	MealId     int64   `json:"mealId"`
 	FoodId     int64   `json:"foodId"`

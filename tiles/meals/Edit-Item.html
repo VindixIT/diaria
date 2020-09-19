@@ -14,12 +14,11 @@
 				<input type="hidden" id="id-edit" value="">
 				<input type="hidden" id="meal-id-edit" value="">
                 <label class="w3-label">Alimento</label>
-				<br>	
 				<script>
 					var ar = [];
 					var i = 0;
 				</script>					
-	            <select onchange="changeLabelMeasure(this); resetFields('edit');" id="alimento-edit">
+	            <select class="w3-input" onchange="changeLabelMeasure(this); resetFields('edit');" id="alimento-edit">
 					<option value=""></option>
 					{{range $index, $food := . }}
 	                <option value="{{$food.Id}}">
@@ -31,8 +30,6 @@
 					</script>
 	            	{{end}}
 	            </select>
-				<br>
-				<br>
                 <label class="w3-label" id="labelMeasure">Quantidade de Medida Usual</label>
                 <input class="w3-input" type="number" id="qtdMedida-edit" value="" onblur="regraDeTresMedida(this,'edit')">
                 <label class="w3-label">Quantidade em g ou ml</label>

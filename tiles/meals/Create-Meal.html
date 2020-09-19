@@ -12,8 +12,7 @@
 
             <form class="w3-container" action="/createMeal" method="post">
                 <label class="w3-label">Tipo de Refeição</label>
-				<br>	
-	            <select name="MealTypeForInsert" id="MealTypeForInsert">
+	            <select class="w3-input" name="MealTypeForInsert" id="MealTypeForInsert">
 					<option value=""></option>
 					{{range $index, $mealType := . }}
 		                <option value="{{$mealType.Id}}" {{if eq true $mealType.Selected}} selected="selected"{{end}}>
@@ -21,8 +20,6 @@
 						</option>
 		            {{end}}
 	            </select>
-				<br>
-				<br>
                 <label class="w3-label">Dia</label>
                 <input class="w3-input" type="date" id="DateForInsert" name="DateForInsert" value="">
                 <label class="w3-label">Horário Inicial</label>

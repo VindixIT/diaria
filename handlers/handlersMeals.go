@@ -146,8 +146,9 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 		var itemPage mdl.Item
 		for key, value := range r.Form {
 			if strings.HasPrefix(key, "item") {
+				log.Println("value[0]: " + value[0])
 				array := strings.Split(value[0], "#")
-				//				log.Println(array)
+				log.Println(array)
 				itemid := strings.Split(array[0], ":")[1]
 				foodid := strings.Split(array[2], ":")[1]
 				qtdMeasure := extraiValor(strings.Split(array[3], ":"))
@@ -171,6 +172,8 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 				itemsPage = append(itemsPage, itemPage)
 			}
 		}
+		log.Println(len(itemsPage))
+		log.Println(len(itemsDB))
 		if len(itemsPage) < len(itemsDB) {
 			log.Println("Quantidade de Itens da Página: " + strconv.Itoa(len(itemsPage)))
 			if len(itemsPage) == 0 {
@@ -191,12 +194,12 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 					diffPage = remove(diffPage, itemsDB[n])
 				}
 			}
-			//			log.Println("CreateNewItemHandler")
+			log.Println("CreateNewItemHandler")
 			itemId := 0
 			var item mdl.Item
 			for i := range diffPage {
 				item = diffPage[i]
-				//				log.Println(item)
+				log.Println(item)
 				sqlStatement := "INSERT INTO items(meal_id, food_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
 				log.Println(sqlStatement)
 				err := Db.QueryRow(sqlStatement, item.MealId, item.FoodId, item.QtdMeasure, item.Qtd, item.Cho, item.Kcal).Scan(&itemId)

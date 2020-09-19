@@ -26,7 +26,7 @@ function updatemeal(e) { // alterado
 function deletemeal(e) {
 	var deleteForm = document.getElementById('delete-form');
 	deleteForm.style.display = 'block';
-	var mealId = e.parentNode.parentNode.childNodes[1].innerText; // alterado
+	var mealId = e.parentNode.parentNode.childNodes[3].innerText; // alterado
 	document.getElementById('MealIdToDelete').value = mealId;
 }
 
