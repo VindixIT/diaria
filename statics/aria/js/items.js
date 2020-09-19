@@ -113,13 +113,13 @@ function updateitem(e) {
 	// alert('foodId: '+foodId);
 	var order = e.parentNode.parentNode.childNodes[0].childNodes[0].value;
 	// alert('order: '+order);
-	var qtdMedida = e.parentNode.parentNode.childNodes[1].childNodes[0].value;
+	var qtdMedida = e.parentNode.parentNode.childNodes[1].innerText;
 	// alert('qtdMedida: '+qtdMedida);
-	var qtd = e.parentNode.parentNode.childNodes[1].innerText;
+	var qtd = e.parentNode.parentNode.childNodes[2].innerText;
 	// alert('qtd: '+qtd);
-	var cho = e.parentNode.parentNode.childNodes[2].innerText;
+	var cho = e.parentNode.parentNode.childNodes[3].innerText;
 	// alert('cho: '+cho);
-	var kcal = e.parentNode.parentNode.childNodes[3].innerText;
+	var kcal = e.parentNode.parentNode.childNodes[4].innerText;
 	//alert('kcal: '+kcal);
 	// Atribuindo os valores de edit-item-form
 	document.getElementById('id-edit').value=id;
@@ -150,7 +150,7 @@ function loadItensByMealId(idMeal){
 				items = [];
 				for(order = 0;order<itemsEdit.length;order++){
 					items[order]=itemsEdit[order];
-					addRow("table-items-"+contexto);
+					addRow("table-items-"+contexto, items[order].foodName);
 				}
 			return items;
 			}

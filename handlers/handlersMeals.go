@@ -46,14 +46,15 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(value)
 				array := strings.Split(value[0], "#")
 				foodid := strings.Split(array[2], ":")[1]
-				//				alimento := array[2]
-				qtdMedida := extraiValor(strings.Split(array[2], ":"))
-				qtd := extraiValor(strings.Split(array[3], ":"))
-				cho := extraiValor(strings.Split(array[4], ":"))
-				kcal := extraiValor(strings.Split(array[5], ":"))
+				qtdMedida := extraiValor(strings.Split(array[4], ":"))
+				log.Println(qtdMedida)
+				qtd := extraiValor(strings.Split(array[5], ":"))
+				cho := extraiValor(strings.Split(array[6], ":"))
+				kcal := extraiValor(strings.Split(array[7], ":"))
 				itemid := 0
 				log.Println("foodid: " + foodid)
 				sqlStatement := "INSERT INTO items(meal_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal, food_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
+
 				err := Db.QueryRow(sqlStatement, mealId, qtdMedida, qtd, cho, kcal, foodid).Scan(&itemid)
 				sec.CheckInternalServerError(err, w)
 				if err != nil {
