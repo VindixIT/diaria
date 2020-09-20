@@ -93,6 +93,12 @@ func createRoleFeatures() {
 	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (20, 1, 20) "
 	//log.Println(query)
 	db.Exec(query)
+	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (21, 1, 21) "
+	//log.Println(query)
+	db.Exec(query)
+	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (22, 1, 22) "
+	//log.Println(query)
+	db.Exec(query)
 }
 
 func createFKey() {
@@ -340,5 +346,7 @@ func createFeatures() {
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (17, 'Listar Minhas Refeições', 'listMyMeals')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (18, 'Listar Meus Vínculos', 'listMyBonds')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (19, 'Criar Vínculo', 'createBond')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (20, 'Listar Refeicoes dos Clientes', 'listBondsMeals')")
+	db.Exec("INSERT INTO public.features (id, name, code) VALUES (20, 'Listar Refeicoes dos Clientes', 'listMyClients')")
+	db.Exec("INSERT INTO public.features (id, name, code) VALUES (21, 'Listar Meus Clientes', 'listBondsMeals')")
+	db.Exec("INSERT INTO public.features (id, name, code) VALUES (22, 'Listar Meus Alimentos', 'listMyFoods')")
 }

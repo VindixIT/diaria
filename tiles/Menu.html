@@ -20,11 +20,17 @@
   {{if (call .LoggedUser.HasPermission "listFoods")}}
   <a href="/listarFoods">Alimentos</a>
   {{end}}
+  {{if (call .LoggedUser.HasPermission "listMyFoods")}}
+  <a href="/listarMyFoods">Meus Alimentos</a>
+  {{end}}
   {{if (call .LoggedUser.HasPermission "listMeasures")}}
   <a href="/listarMedidasUsuais">Medidas Usuais</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listUsers")}}
   <a href="/users">Usuários</a>
+  {{end}}
+  {{if (call .LoggedUser.HasPermission "listMyClients")}}
+  <a href="/myClients">Meus Clientes</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listRoles")}}
   <a href="/roles">Papéis</a>
