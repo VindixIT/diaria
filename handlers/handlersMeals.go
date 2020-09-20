@@ -363,11 +363,13 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		foods = append(foods, food)
 	}
+
 	var page mdl.PageMeals
 	page.Meals = meals
 	page.MealTypes = mealTypes
 	page.Foods = foods
 	page.Title = "Refeições"
+	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
 	var tmpl = ttemplate.Must(ttemplate.ParseGlob("tiles/meals/*"))
 	tmpl.ParseGlob("tiles/*")
 	tmpl.Funcs(funcMap)
@@ -381,6 +383,9 @@ func GetNow() time.Time {
 	now = time.Date(now.Year(), now.Month(), now.Day(),
 		now.Hour(), now.Minute(), now.Second(), 0, br)
 	strNow := now.String()
+	log.Println("------------------")
+	log.Println("Agora são " + strNow + " em America/Sao_Paulo.")
+	log.Println("------------------")
 	txtNow := strings.Split(strings.Split(strings.Split(strNow, " ")[1], ".")[0], ":")
 	hora, _ := strconv.Atoi(txtNow[0])
 	minuto, _ := strconv.Atoi(txtNow[1])
@@ -389,7 +394,6 @@ func GetNow() time.Time {
 		hora,
 		minuto,
 		segundo, 0, time.UTC)
-	//	t := time.Date(0000, time.January, 0, 24, 5, 58, 0, time.UTC)
 	return t
 }
 

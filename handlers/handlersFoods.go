@@ -109,6 +109,7 @@ func ListFoodsHandler(w http.ResponseWriter, r *http.Request) {
 
 	page.Title = "Tabela de Alimentos"
 	page.Measures = measures
+	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
 	var tmpl = template.Must(template.ParseGlob("tiles/foods/*"))
 	tmpl.ParseGlob("tiles/*")
 	tmpl.ExecuteTemplate(w, "Main-Food", page)

@@ -82,6 +82,7 @@ func ListMealTypesHandler(w http.ResponseWriter, r *http.Request) {
 	var page mdl.PageMealTypes
 	page.MealTypes = mealTypes
 	page.Title = "Tipos de Refeições"
+	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
 	var tmpl = template.Must(template.ParseGlob("tiles/mealTypes/*"))
 	tmpl.ParseGlob("tiles/*")
 	tmpl.ExecuteTemplate(w, "Main-Meal-Type", page)

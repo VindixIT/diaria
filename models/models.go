@@ -6,12 +6,35 @@ import (
 	"time"
 )
 
+var AppName = "diAria"
+
 type User struct {
+	Order    int       `json:"order"`
+	Id       int64     `json:"id"`
+	Name     string    `json:"name"`
+	Username string    `json:"username"`
+	Password string    `json:"password"`
+	Email    string    `json:"email"`
+	Mobile   string    `json:"mobile"`
+	Role     int64     `json:"role"`
+	RoleName string    `json:"rolename"`
+	Features []Feature `json:"features"`
+	Selected bool      `json:"selected"`
+}
+
+type Role struct {
 	Order    int
 	Id       int64  `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     int64  `json:"role"`
+	Name     string `json:"name"`
+	Selected bool
+	Features []Feature
+}
+
+type Feature struct {
+	Order int
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Code  string `json:"code"`
 }
 
 type Food struct {
@@ -84,24 +107,56 @@ type Measure struct {
 }
 
 type PageMeasures struct {
-	Title    string
-	Measures []Measure
+	Title      string
+	Measures   []Measure
+	LoggedUser LoggedUser
 }
 
 type PageMeals struct {
-	Title     string
-	Meals     []Meal
-	MealTypes []MealType
-	Foods     []Food
+	Title      string
+	Meals      []Meal
+	MealTypes  []MealType
+	Foods      []Food
+	LoggedUser LoggedUser
 }
 
 type PageMealTypes struct {
-	Title     string
-	MealTypes []MealType
+	Title      string
+	MealTypes  []MealType
+	LoggedUser LoggedUser
 }
 
 type PageFoods struct {
-	Title    string
-	Foods    []Food
-	Measures []Measure
+	Title      string
+	Foods      []Food
+	Measures   []Measure
+	LoggedUser LoggedUser
+}
+
+type PageRoles struct {
+	AppName    string
+	Title      string
+	Roles      []Role
+	Features   []Feature
+	LoggedUser LoggedUser
+}
+
+type PageFeatures struct {
+	AppName    string
+	Title      string
+	Features   []Feature
+	LoggedUser LoggedUser
+}
+
+type PageUsers struct {
+	AppName    string
+	Title      string
+	Users      []User
+	Roles      []Role
+	LoggedUser LoggedUser
+}
+
+type LoggedUser struct {
+	User          User
+	HasPermission func(string) bool
 }

@@ -2,7 +2,7 @@
 <html lang="pt">
 	{{ template "Header" .Title}}
 <body>
-{{ template "Menu" }}
+{{ template "Menu" . }}
 {{ template "Create-Meal" .MealTypes }}
 {{ template "Edit-Meal" .MealTypes }}
 {{ template "Delete-Meal" }}

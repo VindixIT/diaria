@@ -82,6 +82,7 @@ func ListMeasuresHandler(w http.ResponseWriter, r *http.Request) {
 	var page mdl.PageMeasures
 	page.Measures = measures
 	page.Title = "Medidas Usuais"
+	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
 	var tmpl = template.Must(template.ParseGlob("tiles/measures/*"))
 	tmpl.ParseGlob("tiles/*")
 	tmpl.ExecuteTemplate(w, "Main-Measure", page)

@@ -61,6 +61,21 @@ func main() {
 	http.HandleFunc("/createMeal", hd.CreateMealHandler)
 	http.HandleFunc("/updateMeal", hd.UpdateMealHandler)
 	http.HandleFunc("/deleteMeal", hd.DeleteMealHandler)
+	// ----------------- FEATURES
+	http.HandleFunc(route.FeaturesRoute, hd.ListFeaturesHandler)
+	http.HandleFunc("/createFeature", hd.CreateFeatureHandler)
+	http.HandleFunc("/updateFeature", hd.UpdateFeatureHandler)
+	http.HandleFunc("/deleteFeature", hd.DeleteFeatureHandler)
+	// ----------------- ROLES
+	http.HandleFunc(route.RolesRoute, hd.ListRolesHandler)
+	http.HandleFunc("/createRole", hd.CreateRoleHandler)
+	http.HandleFunc("/updateRole", hd.UpdateRoleHandler)
+	http.HandleFunc("/deleteRole", hd.DeleteRoleHandler)
+	// ----------------- USERS
+	http.HandleFunc(route.UsersRoute, hd.ListUsersHandler)
+	http.HandleFunc("/createUser", hd.CreateUserHandler)
+	http.HandleFunc("/updateUser", hd.UpdateUserHandler)
+	http.HandleFunc("/deleteUser", hd.DeleteUserHandler)
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),
