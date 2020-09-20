@@ -19,6 +19,9 @@ func Initialize() {
 	createPKey()
 	createFKey()
 	createUniqueKey()
+	InitMealTypes()
+	InitMeasures()
+	InitFoods()
 }
 
 func createRoleAdmin() {
@@ -237,7 +240,8 @@ func createTables() {
 		" cho double precision, " +
 		" kcal double precision, " +
 		" measure character varying(255), " +
-		" approved boolean DEFAULT false)")
+		" approved boolean DEFAULT false, " +
+		" author_id integer)")
 
 	// Table ITEMS
 	db.Exec(

@@ -34,9 +34,6 @@ func main() {
 	hd.Db = dbConn()
 	// injeta	ndo a variável Authenticated
 	dpk.Initialize()
-	dpk.InitMealTypes()
-	dpk.InitMeasures()
-	dpk.InitFoods()
 	log.Println("O database está disponível.")
 	// injetando a variável Authenticated
 	http.HandleFunc("/", hd.IndexHandler)
