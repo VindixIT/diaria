@@ -11,8 +11,7 @@ var db *sql.DB
 func Initialize() {
 	db = hd.Db
 	createSeq()
-	//	createDropTable()
-	createTable()
+	createTables()
 	createFeatures()
 	createRoleAdmin()
 	createRoleFeatures()
@@ -223,7 +222,7 @@ func createDropTable() {
 	db.Exec(" DROP TABLE public.users")
 }
 
-func createTable() {
+func createTables() {
 	// Table MEASURES
 	db.Exec("CREATE TABLE public.measures ( " +
 		"id integer DEFAULT nextval('public.measures_id_seq'::regclass) NOT NULL, " +
@@ -290,13 +289,6 @@ func createTable() {
 			" feature_id integer," +
 			" role_id integer)")
 
-	// Table BONDS
-	db.Exec(
-		" CREATE TABLE public.bonds (" +
-			" id integer DEFAULT nextval('bonds_id_seq'::regclass)," +
-			" service_provider_id integer," +
-			" service_consumer_id integer)")
-
 	// Table USERS
 	db.Exec(
 		" CREATE TABLE IF NOT EXISTS public.users (" +
@@ -306,7 +298,15 @@ func createTable() {
 			" email character varying(255) NOT NULL," +
 			" mobile character varying(255) NOT NULL," +
 			" role_id integer NOT NULL," +
-			" name character varying(255)")
+			" name character varying(255))")
+
+	// Table BONDS
+	db.Exec(
+		" CREATE TABLE public.bonds (" +
+			" id integer DEFAULT nextval('bonds_id_seq'::regclass)," +
+			" service_provider_id integer," +
+			" service_consumer_id integer)")
+
 }
 
 func createUniqueKey() {
