@@ -415,7 +415,8 @@ func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
 		"coalesce(a.bolus,0.00) as bolus FROM " +
 		"meals a, meal_types b " +
 		"WHERE a.meal_type_id = b.id " +
-		"AND a.author_id in (select service_consumer_id from bonds where service_provider_id = $1) " +
+		"AND (a.author_id in (select service_consumer_id from bonds where service_provider_id = $1) " +
+		"OR a.author_id = $2) " +
 		"order by a.id desc " +
 		") R1 LEFT OUTER JOIN " +
 		"(SELECT a.id as meal_id, " +
@@ -429,7 +430,8 @@ func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
 		"ON R1.meal_id = R2.meal_id "
 
 	log.Println("QUERY: " + query)
-	rows, err := Db.Query(query, currentUser.Id)
+	log.Println("Current User Id: " + strconv.FormatInt(currentUser.Id, 10))
+	rows, err := Db.Query(query, currentUser.Id, currentUser.Id)
 	sec.CheckInternalServerError(err, w)
 	var funcMap = ttemplate.FuncMap{
 		"multiplication": func(n float64, f float64) float64 {
