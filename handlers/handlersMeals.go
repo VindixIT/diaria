@@ -386,7 +386,10 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 
 func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List My Meals")
-	sec.IsAuthenticated(w, r)
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	currentUser := GetUserInCookie(w, r)
 	query := "SELECT " +
 		"R1.meal_id, " +
