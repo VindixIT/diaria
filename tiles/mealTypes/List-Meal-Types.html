@@ -14,8 +14,8 @@
 				</div>
 				<div style="margin-top: 10px;text-align: right;z-index:1">
 					{{$allowed := (call .LoggedUser.HasPermission "createMealType")}}
+					{{.LoggedUser.User.Name}}
 					{{if $allowed}}
-						{{.LoggedUser.User.Name}}
 					    <a href="#" onclick="setTime();document.getElementById('create-form').style.display='block'">
 							<i class="icon ion-ios-plus-outline w3-xxlarge hoverbtn"></i>
 					    </a>

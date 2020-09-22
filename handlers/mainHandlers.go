@@ -51,7 +51,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	query := "SELECT id, name, " +
 		" username, password, COALESCE(role_id, 0)" +
 		" FROM users WHERE username=$1"
-	log.Println("Q users: " + query)
+	log.Println("LOGIN users: " + query)
 	err := Db.QueryRow(query, &username).Scan(&user.Id, &user.Name, &user.Username, &user.Password, &user.Role)
 	sec.CheckInternalServerError(err, w)
 	// validate password
@@ -63,7 +63,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	query = "SELECT " +
 		"A.feature_id, B.code FROM features_roles A, features B " +
 		"WHERE A.feature_id = B.id AND A.role_id = $1"
-	log.Println("Q features: " + query)
+	log.Println("LOGIN features: " + query)
 	rows, _ := Db.Query(query, user.Role)
 	var features []mdl.Feature
 	var feature mdl.Feature
@@ -77,7 +77,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Abrindo o Cookie
 	savedUser := GetUserInCookie(w, r)
 	log.Println("MAIN Saved User is " + savedUser.Username)
-	http.Redirect(w, r, route.MyMealsRoute, 301)
+	http.Redirect(w, r, route.MealsRoute, 301)
 }
 
 func GetUserInCookie(w http.ResponseWriter, r *http.Request) mdl.User {
@@ -95,7 +95,7 @@ func GetUserInCookie(w http.ResponseWriter, r *http.Request) mdl.User {
 func AddUserInCookie(w http.ResponseWriter, r *http.Request, user mdl.User) {
 	store.Options = &sessions.Options{
 		Path:   "/",
-		MaxAge: 60,
+		MaxAge: 300,
 	}
 	session, _ := store.Get(r, CookieName)
 	bytesUser, _ := json.Marshal(&user)

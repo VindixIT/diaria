@@ -12,13 +12,13 @@ func Initialize() {
 	db = hd.Db
 	createSeq()
 	createTables()
+	createPKey()
+	createFKey()
+	createUniqueKey()
 	createFeatures()
 	createSystemRoles()
 	createRoleFeatures()
 	createAdmin()
-	createPKey()
-	createFKey()
-	createUniqueKey()
 	InitMealTypes()
 	InitMeasures()
 	InitFoods()
@@ -100,18 +100,6 @@ func createRoleFeatures() {
 	//log.Println(query)
 	db.Exec(query)
 	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (18, 1, 18) "
-	//log.Println(query)
-	db.Exec(query)
-	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (19, 1, 19) "
-	//log.Println(query)
-	db.Exec(query)
-	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (20, 1, 20) "
-	//log.Println(query)
-	db.Exec(query)
-	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (21, 1, 21) "
-	//log.Println(query)
-	db.Exec(query)
-	query = " INSERT INTO features_roles (id, role_id, feature_id) VALUES (22, 1, 22) "
 	//log.Println(query)
 	db.Exec(query)
 }
@@ -364,10 +352,6 @@ func createFeatures() {
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (14, 'Criar Alimento', 'createFood')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (15, 'Listar Usuários', 'listUsers')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (16, 'Criar Usuário', 'createUser')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (17, 'Listar Minhas Refeições', 'listMyMeals')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (18, 'Listar Vínculos', 'listBonds')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (19, 'Criar Vínculo', 'createBond')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (20, 'Listar Refeicoes dos Clientes', 'listMyClients')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (21, 'Listar Meus Clientes', 'listBondsMeals')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (22, 'Listar Meus Alimentos', 'listMyFoods')")
+	db.Exec("INSERT INTO public.features (id, name, code) VALUES (17, 'Listar Vínculos', 'listBonds')")
+	db.Exec("INSERT INTO public.features (id, name, code) VALUES (18, 'Criar Vínculo', 'createBond')")
 }

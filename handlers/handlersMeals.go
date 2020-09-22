@@ -249,198 +249,93 @@ func remove(items []mdl.Item, itemToBeRemoved mdl.Item) []mdl.Item {
 }
 
 func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Listar Meals")
-	if !sec.IsAuthenticated(w, r) {
-		http.ServeFile(w, r, "tmpl/login.html")
-		return
-	}
-	query := "SELECT " +
-		"R1.meal_id, " +
-		"R1.meal_type_id, " +
-		"R1.meal_type_name, " +
-		"R1.meal_date, " +
-		"R1.start_at, " +
-		"R1.end_at, " +
-		"R1.c_meal_date, " +
-		"R1.c_start_at, " +
-		"R1.c_end_at, " +
-		"coalesce(R2.cho_total,0)," +
-		"coalesce(R2.kcal_total,0), " +
-		"coalesce(R1.bolus,0) " +
-		"FROM " +
-		"( " +
-		"SELECT  " +
-		"a.id as meal_id, b.id as meal_type_id, b.name as meal_type_name, " +
-		"a.date as meal_date, a.start_at as start_at, a.end_at as end_at, " +
-		"coalesce(to_char(a.date,'DD/MM/YYYY'),'') as c_meal_date, " +
-		"coalesce(to_char(a.start_at,'HH24:MI:SS'),'') as c_start_at, " +
-		"coalesce(to_char(a.end_at,'HH24:MI:SS'),'') as c_end_at, " +
-		"coalesce(a.bolus,0.00) as bolus FROM " +
-		"meals a, meal_types b " +
-		"WHERE a.meal_type_id = b.id " +
-		"order by a.id desc " +
-		") R1 LEFT OUTER JOIN " +
-		"(SELECT a.id as meal_id, " +
-		"sum(b.cho) as cho_total, " +
-		"sum(b.kcal) as kcal_total " +
-		"from meals a, items b " +
-		"where a.id = b.meal_id " +
-		"group by a.id " +
-		"order by a.id desc " +
-		" ) R2 " +
-		"ON R1.meal_id = R2.meal_id "
-
-	log.Println("QUERY: " + query)
-	rows, err := Db.Query(query)
-	sec.CheckInternalServerError(err, w)
-	var funcMap = ttemplate.FuncMap{
-		"multiplication": func(n float64, f float64) float64 {
-			return n * f
-		},
-		"addOne": func(n int) int {
-			return n + 1
-		},
-	}
-	var meals []mdl.Meal
-	var meal mdl.Meal
-	var i = 1
-	for rows.Next() {
-		err = rows.Scan(
-			&meal.Id,
-			&meal.MealTypeId,
-			&meal.MealTypeName,
-			&meal.Date,
-			&meal.StartAt,
-			&meal.EndAt,
-			&meal.CDate,
-			&meal.CStartAt,
-			&meal.CEndAt,
-			&meal.CCho,
-			&meal.CKcal,
-			&meal.Bolus)
-		sec.CheckInternalServerError(err, w)
-		meal.Order = i
-		i++
-		meals = append(meals, meal)
-	}
-	rows, err = Db.Query("SELECT id, name, start_at, end_at FROM meal_types")
-	sec.CheckInternalServerError(err, w)
-	var mealTypes []mdl.MealType
-	var mealType mdl.MealType
-	now := GetNow()
-	for rows.Next() {
-		err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt)
-		sec.CheckInternalServerError(err, w)
-		if mealType.EndAt.Before(mealType.StartAt) {
-			//			log.Println("mealType.EndAt.Before(mealType.StartAt)")
-			if mealType.StartAt.Before(now) && GetMidnight().After(now) {
-				mealType.Selected = true
-			} else {
-				//				log.Println("GetMidnight().Before(now) && mealType.EndAt.After(now)")
-				//				log.Println("now: " + now.String())
-				//				log.Println("midnight: " + GetMidnight().String())
-				//				log.Println("mealType.EndAt: " + mealType.EndAt.String())
-				if GetMidnight().Before(now) && mealType.EndAt.After(now) {
-					//					log.Println("true")
-					mealType.Selected = true
-				} else {
-					//					log.Println("false")
-					mealType.Selected = false
-				}
-			}
-		} else {
-			//			log.Println("mealType.StartAt.Before(now) && mealType.EndAt.After(now)")
-			if mealType.StartAt.Before(now) && mealType.EndAt.After(now) {
-				mealType.Selected = true
-			} else {
-				mealType.Selected = false
-			}
-		}
-		mealTypes = append(mealTypes, mealType)
-	}
-	query = "SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
-		"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc"
-	log.Println(query)
-	rows, err = Db.Query(query)
-	sec.CheckInternalServerError(err, w)
-	var foods []mdl.Food
-	var food mdl.Food
-	for rows.Next() {
-		err = rows.Scan(&food.Id, &food.Name, &food.Measure, &food.Qtd, &food.Cho, &food.Kcal)
-		sec.CheckInternalServerError(err, w)
-		foods = append(foods, food)
-	}
-
-	var page mdl.PageMeals
-	page.Meals = meals
-	page.MealTypes = mealTypes
-	page.Foods = foods
-	page.Title = "Refeições"
-	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
-	var tmpl = ttemplate.Must(ttemplate.ParseGlob("tiles/meals/*"))
-	tmpl.ParseGlob("tiles/*")
-	tmpl.Funcs(funcMap)
-	tmpl.ExecuteTemplate(w, "Main-Meal", page)
-	sec.CheckInternalServerError(err, w)
-}
-
-func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("List My Meals")
+	log.Println("List Meals")
 	if !sec.IsAuthenticated(w, r) {
 		http.ServeFile(w, r, "tmpl/login.html")
 		return
 	}
 	currentUser := GetUserInCookie(w, r)
-	query := "SELECT " +
-		"R1.meal_id, " +
-		"R1.meal_type_id, " +
-		"R1.meal_type_name, " +
-		"R1.meal_date, " +
-		"R1.start_at, " +
-		"R1.end_at, " +
-		"R1.c_meal_date, " +
-		"R1.c_start_at, " +
-		"R1.c_end_at, " +
-		"coalesce(R2.cho_total,0)," +
-		"coalesce(R2.kcal_total,0), " +
-		"coalesce(R1.bolus,0) " +
-		"FROM " +
-		"( " +
-		"SELECT  " +
-		"a.id as meal_id, b.id as meal_type_id, b.name as meal_type_name, " +
-		"a.date as meal_date, a.start_at as start_at, a.end_at as end_at, " +
-		"coalesce(to_char(a.date,'DD/MM/YYYY'),'') as c_meal_date, " +
-		"coalesce(to_char(a.start_at,'HH24:MI:SS'),'') as c_start_at, " +
-		"coalesce(to_char(a.end_at,'HH24:MI:SS'),'') as c_end_at, " +
-		"coalesce(a.bolus,0.00) as bolus FROM " +
-		"meals a, meal_types b " +
-		"WHERE a.meal_type_id = b.id " +
-		"AND (a.author_id in (select service_consumer_id from bonds where service_provider_id = $1) " +
-		"OR a.author_id = $2) " +
-		"order by a.id desc " +
-		") R1 LEFT OUTER JOIN " +
-		"(SELECT a.id as meal_id, " +
-		"sum(b.cho) as cho_total, " +
-		"sum(b.kcal) as kcal_total " +
-		"from meals a, items b " +
-		"where a.id = b.meal_id " +
-		"group by a.id " +
-		"order by a.id desc " +
+	curId := strconv.FormatInt(currentUser.Id, 10)
+	snippet1 := "in (select service_consumer_id from bonds where service_provider_id = " + curId + ")"
+	snippet2 := ""
+	clientId := ""
+	beginDateFilter := ""
+	endDateFilter := ""
+	var filter mdl.MealsFilter
+	if r.Method == "POST" {
+		clientId = r.FormValue("ClientFilter")
+		if clientId != "" {
+			snippet1 = "= " + clientId + " "
+		}
+		beginDateFilter = r.FormValue("BeginDateFilter")
+		filter.BeginDate = beginDateFilter
+		endDateFilter = r.FormValue("EndDateFilter")
+		filter.EndDate = endDateFilter
+		log.Println("1: BeginDate: " + beginDateFilter + " - EndDate: " + endDateFilter)
+		if beginDateFilter != "" && endDateFilter != "" {
+			snippet2 = " and (a.date BETWEEN to_date('" + beginDateFilter +
+				"','YYYY-MM-DD') AND TO_DATE('" + endDateFilter + "','YYYY-MM-DD')) "
+		}
+	} else {
+		now := time.Now()
+		strNow := now.String()
+		txtNow := strings.Split(strings.Split(strNow, " ")[0], "-")
+		dia := txtNow[2]
+		mes := txtNow[1]
+		ano := txtNow[0]
+		beginDateFilter = ano + "-" + mes + "-" + dia
+		endDateFilter = beginDateFilter
+		log.Println("2: BeginDate: " + beginDateFilter + " - EndDate: " + endDateFilter)
+		filter.BeginDate = beginDateFilter
+		filter.EndDate = endDateFilter
+	}
+
+	query := " SELECT " +
+		" R1.meal_id, " +
+		" R1.meal_type_id, " +
+		" R1.meal_type_name, " +
+		" R1.meal_date, " +
+		" R1.start_at, " +
+		" R1.end_at, " +
+		" R1.c_meal_date, " +
+		" R1.c_start_at, " +
+		" R1.c_end_at, " +
+		" coalesce(R2.cho_total,0)," +
+		" coalesce(R2.kcal_total,0), " +
+		" coalesce(R1.bolus,0), " +
+		" R1.author_name " +
+		" FROM " +
+		" ( " +
+		" SELECT  " +
+		" a.id as meal_id, b.id as meal_type_id, b.name as meal_type_name, " +
+		" a.date as meal_date, a.start_at as start_at, a.end_at as end_at, " +
+		" coalesce(to_char(a.date,'DD/MM/YYYY'),'') as c_meal_date, " +
+		" coalesce(to_char(a.start_at,'HH24:MI:SS'),'') as c_start_at, " +
+		" coalesce(to_char(a.end_at,'HH24:MI:SS'),'') as c_end_at, " +
+		" coalesce(a.bolus,0.00) as bolus, " +
+		" c.name as author_name " +
+		" FROM " +
+		" meals a, meal_types b, users c " +
+		" WHERE a.meal_type_id = b.id " +
+		" AND c.id = a.author_id " +
+		" AND (a.author_id " + snippet1 +
+		snippet2 +
+		" OR a.author_id = " + curId + ") " +
+		" order by a.id desc " +
+		" ) R1 LEFT OUTER JOIN " +
+		" (SELECT a.id as meal_id, " +
+		" sum(b.cho) as cho_total, " +
+		" sum(b.kcal) as kcal_total " +
+		" from meals a, items b " +
+		" where a.id = b.meal_id " +
+		" group by a.id " +
+		" order by a.id desc " +
 		" ) R2 " +
-		"ON R1.meal_id = R2.meal_id "
+		" ON R1.meal_id = R2.meal_id "
 
 	log.Println("QUERY: " + query)
-	log.Println("Current User Id: " + strconv.FormatInt(currentUser.Id, 10))
-	rows, err := Db.Query(query, currentUser.Id, currentUser.Id)
-	sec.CheckInternalServerError(err, w)
-	var funcMap = ttemplate.FuncMap{
-		"multiplication": func(n float64, f float64) float64 {
-			return n * f
-		},
-		"addOne": func(n int) int {
-			return n + 1
-		},
-	}
+	log.Println("Current User Id: " + curId)
+	rows, err := Db.Query(query)
 	var meals []mdl.Meal
 	var meal mdl.Meal
 	var i = 1
@@ -457,12 +352,43 @@ func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
 			&meal.CEndAt,
 			&meal.CCho,
 			&meal.CKcal,
-			&meal.Bolus)
+			&meal.Bolus,
+			&meal.AuthorName)
 		sec.CheckInternalServerError(err, w)
 		meal.Order = i
 		i++
 		meals = append(meals, meal)
 	}
+
+	query = " SELECT a.service_consumer_id, b.name FROM bonds a " +
+		" INNER JOIN users b ON b.id = a.service_consumer_id " +
+		" WHERE a.service_provider_id = $1 "
+	log.Println("QUERY: " + query)
+	rows, err = Db.Query(query, curId)
+	var clients []mdl.User
+	var client mdl.User
+	for rows.Next() {
+		err = rows.Scan(&client.Id, &client.Name)
+		if strconv.FormatInt(client.Id, 10) == clientId {
+			log.Println("clientId: " + clientId)
+			client.Selected = true
+		} else {
+			client.Selected = false
+		}
+		sec.CheckInternalServerError(err, w)
+		clients = append(clients, client)
+	}
+
+	sec.CheckInternalServerError(err, w)
+	var funcMap = ttemplate.FuncMap{
+		"multiplication": func(n float64, f float64) float64 {
+			return n * f
+		},
+		"addOne": func(n int) int {
+			return n + 1
+		},
+	}
+
 	rows, err = Db.Query("SELECT id, name, start_at, end_at FROM meal_types")
 	sec.CheckInternalServerError(err, w)
 	var mealTypes []mdl.MealType
@@ -516,7 +442,10 @@ func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
 	page.AppName = mdl.AppName
 	page.MealTypes = mealTypes
 	page.Foods = foods
-	page.Title = "Minhas Refeições"
+	filter.Clients = clients
+	page.Filter = filter
+	log.Println("Qtd. Clients: " + strconv.Itoa(len(clients)))
+	page.Title = "Refeições"
 	page.LoggedUser = BuildLoggedUser(currentUser)
 	var tmpl = ttemplate.Must(ttemplate.ParseGlob("tiles/meals/*"))
 	tmpl.ParseGlob("tiles/*")
@@ -531,9 +460,9 @@ func GetNow() time.Time {
 	now = time.Date(now.Year(), now.Month(), now.Day(),
 		now.Hour(), now.Minute(), now.Second(), 0, br)
 	strNow := now.String()
-	log.Println("------------------")
-	log.Println("Agora são " + strNow + " em America/Sao_Paulo.")
-	log.Println("------------------")
+	log.Println("------------------------------------------------------------------------")
+	log.Println("- Agora são " + strNow + " em America/Sao_Paulo. ")
+	log.Println("------------------------------------------------------------------------")
 	txtNow := strings.Split(strings.Split(strings.Split(strNow, " ")[1], ".")[0], ":")
 	hora, _ := strconv.Atoi(txtNow[0])
 	minuto, _ := strconv.Atoi(txtNow[1])

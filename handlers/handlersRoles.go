@@ -45,9 +45,9 @@ func CreateRoleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateRoleHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
+
 	log.Println("Update Role")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		roleId := r.FormValue("Id")
 		name := r.FormValue("Name")
 		sqlStatement := "UPDATE roles SET name=$1 WHERE id=$2"
@@ -96,8 +96,10 @@ func UpdateRoleHandler(w http.ResponseWriter, r *http.Request) {
 				Db.QueryRow(sqlStatement, roleId, feature.Id)
 			}
 		}
+		http.Redirect(w, r, route.RolesRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.RolesRoute, 301)
 }
 
 func containsFeature(features []mdl.Feature, featureCompared mdl.Feature) bool {

@@ -85,6 +85,7 @@ type Meal struct {
 	CCho         string   `json:"ccho"`
 	CKcal        string   `json:"ckcal"`
 	Bolus        float64  `json:"bolus"`
+	AuthorName   string   `json:"author"`
 }
 
 type NullTime struct {
@@ -117,6 +118,12 @@ type Measure struct {
 	Selected bool
 }
 
+type MealsFilter struct {
+	Clients   []User `json:"clients"`
+	BeginDate string `json:"beginDate"`
+	EndDate   string `json:"endDate"`
+}
+
 type PageMeasures struct {
 	AppName    string
 	Title      string
@@ -130,6 +137,7 @@ type PageMeals struct {
 	Meals      []Meal
 	MealTypes  []MealType
 	Foods      []Food
+	Filter     MealsFilter
 	LoggedUser LoggedUser
 }
 

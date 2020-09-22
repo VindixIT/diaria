@@ -58,7 +58,7 @@ func main() {
 	http.HandleFunc("/deleteMeasure", hd.DeleteMeasureHandler)
 	// ----------------- MEALS
 	http.HandleFunc(route.MealsRoute, hd.ListMealsHandler)
-	http.HandleFunc("/listMyMeals", hd.ListMyMealsHandler)
+	http.HandleFunc("/listMealsByFilter", hd.ListMealsHandler)
 	http.HandleFunc("/createMeal", hd.CreateMealHandler)
 	http.HandleFunc("/updateMeal", hd.UpdateMealHandler)
 	http.HandleFunc("/deleteMeal", hd.DeleteMealHandler)

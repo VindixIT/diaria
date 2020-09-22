@@ -14,8 +14,8 @@
 				</div>
 				<div style="margin-top: 10px;text-align:right;z-index:1">
 					{{$allowed := (call .LoggedUser.HasPermission "createMeal")}}
+					{{.LoggedUser.User.Name}}
 					{{if $allowed}}
-						{{.LoggedUser.User.Name}}
 					    <a href="#" onclick="setTime();document.getElementById('create-form').style.display='block'">
 							<i class="icon ion-ios-plus-outline w3-xxlarge hoverbtn"></i>
 					    </a>
@@ -26,53 +26,70 @@
 				</div>
 		    </div>
 		</header>
-        <table class="w3-table w3-centered w3-border w3-bordered w3-hoverable">
-            <thead>
-            <tr>
-                <td colspan=2>Cliente</td>
-                <td colspan=2>Cliente</td>
-                <td colspan=6>&nbsp;</td>
-            </tr>
-            <tr>
-                <th>Ord</th>
-                <th>Id</th>
-                <th>Tipo de Refeição</th>
-                <th>Data</th>
-                <th>Início</th>
-                <th>Fim</th>
-                <th>CHO</th>
-                <th>Kcal</th>
-                <th>Bolus</th>
-				<th>Ações</th>
-            </tr>
-            </thead>
-            <tbody>
-			{{$auxData := ( index .Meals 0 ).CDate }}
-            {{range $index, $meal := .Meals }}
-				{{if or (eq $index 0) (ne $auxData $meal.CDate)}}
+			<!-- class="w3-table w3-centered w3-border w3-bordered w3-hoverable" -->
+	        <table class="w3-table w3-centered w3-border w3-bordered w3-hoverable">
+	            <thead>
 	            <tr>
-	                <td colspan="10" bgcolor="lightgreen" style="font-size:1.2em;text-align:left">{{$meal.CDate}}</td>
-            	</tr>
-				{{$auxData = $meal.CDate }}
-				{{end}}
-	            <tr>
-					<td>{{$meal.Order}}</td>
-	                <td>{{$meal.Id}}<input type="hidden" value="{{$meal.MealTypeId}}"></td>
-					<td>{{$meal.MealTypeName}}</td>
-	                <td>{{$meal.CDate}}</td>
-	                <td>{{$meal.CStartAt}}</td>
-	                <td>{{$meal.CEndAt}}</td>
-	                <td>{{$meal.CCho}}</td>
-	                <td>{{$meal.CKcal}}</td>
-	                <td>{{$meal.Bolus}}</td>
-	                <td>
-	                    <button class="w3-btn w3-teal" onclick="contexto='edit';updatemeal(this);">Editar</button>
-	                    <button class="w3-btn w3-red" onclick="deletemeal(this)">Apagar</button>
-	                </td>
+					<form class="w3-container" style="padding: 0px" action="/listMealsByFilter" method="POST">
+		                <th colspan="2" style="vertical-align: baseline;">Cliente:</th>
+		                <th colspan="2">
+				            <select class="w3-input" name="ClientFilter" id="ClientFilter">
+								<option value=""></option>
+								{{range $index, $client := .Filter.Clients }}
+					                <option value="{{$client.Id}}" {{if eq true $client.Selected}} selected="selected"{{end}}>
+										{{$client.Name}}
+									</option>
+					            {{end}}
+				            </select>
+						</th>
+		                <th >Período</th>
+		                <th colspan="2"><input class="w3-input" type="date" id="BeginDateFilter" name="BeginDateFilter" value="{{$.Filter.BeginDate}}"></th>
+		                <th colspan="2"><input class="w3-input" type="date" id="EndDateFilter" name="EndDateFilter" value="{{$.Filter.EndDate}}"></th>
+		                <th colspan="2"><button class="w3-btn w3-gray" type="submit">Filtrar</button></th>
+					</form>
 	            </tr>
-			{{end}}
-            </tbody>
-        </table>
+	            <tr>
+	                <th>Ord</th>
+	                <th>Id</th>
+	                <th>Tipo de Refeição</th>
+	                <th>Data</th>
+	                <th>Início</th>
+	                <th>Fim</th>
+	                <th>CHO</th>
+	                <th>Kcal</th>
+	                <th>Bolus</th>
+	                <th>Registrado por</th>
+					<th>Ações</th>
+	            </tr>
+	            </thead>
+	            <tbody>
+				{{$auxData := ( index .Meals 0 ).CDate }}
+	            {{range $index, $meal := .Meals }}
+					{{if or (eq $index 0) (ne $auxData $meal.CDate)}}
+		            <tr>
+		                <td colspan="11" bgcolor="lightgreen" style="font-size:1.2em;text-align:left">{{$meal.CDate}}</td>
+	            	</tr>
+					{{$auxData = $meal.CDate }}
+					{{end}}
+		            <tr>
+						<td>{{$meal.Order}}</td>
+		                <td>{{$meal.Id}}<input type="hidden" value="{{$meal.MealTypeId}}"></td>
+						<td>{{$meal.MealTypeName}}</td>
+		                <td>{{$meal.CDate}}</td>
+		                <td>{{$meal.CStartAt}}</td>
+		                <td>{{$meal.CEndAt}}</td>
+		                <td>{{$meal.CCho}}</td>
+		                <td>{{$meal.CKcal}}</td>
+		                <td>{{$meal.Bolus}}</td>
+		                <td>{{$meal.AuthorName}}</td>
+		                <td>
+		                    <button class="w3-btn w3-teal" onclick="contexto='edit';updatemeal(this);">Editar</button>
+		                    <button class="w3-btn w3-red" onclick="deletemeal(this)">Apagar</button>
+		                </td>
+		            </tr>
+				{{end}}
+	            </tbody>
+	        </table>
     </div>
 </div>
 {{end}}
