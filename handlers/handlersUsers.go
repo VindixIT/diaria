@@ -12,9 +12,9 @@ import (
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
-	log.Println("Create User")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
+		log.Println("Create User")
+		currentUser := GetUserInCookie(w, r)
 		name := r.FormValue("Name")
 		username := r.FormValue("Username")
 		password := r.FormValue("Password")
@@ -22,9 +22,12 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		mobile := r.FormValue("Mobile")
 		role := r.FormValue("RoleForInsert")
 		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		sqlStatement := "INSERT INTO Users(name, username, password, email, mobile, role_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
+		sqlStatement := "INSERT INTO Users(name, username, password, email, mobile, role_id, author_id) " +
+			"VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
+		log.Println(sqlStatement)
+		log.Println("Current Id: " + strconv.FormatInt(currentUser.Id, 10))
 		id := 0
-		err = Db.QueryRow(sqlStatement, name, username, hash, email, mobile, role).Scan(&id)
+		err = Db.QueryRow(sqlStatement, name, username, hash, email, mobile, role, currentUser.Id).Scan(&id)
 		sec.CheckInternalServerError(err, w)
 		if err != nil {
 			panic(err.Error())
@@ -34,14 +37,15 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 			" | Name: " + name + " | Username: " + username +
 			" | Password: " + password + " | Email: " + email +
 			" | Mobile: " + mobile + " | Role: " + role)
+		http.Redirect(w, r, route.UsersRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.UsersRoute, 301)
 }
 
 func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
-	log.Println("Update User")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
+		log.Println("Update User")
 		id := r.FormValue("Id")
 		name := r.FormValue("Name")
 		username := r.FormValue("Username")
@@ -66,14 +70,15 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 			email + " | Mobile: " +
 			mobile + " | Role: " +
 			role)
+		http.Redirect(w, r, route.UsersRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.UsersRoute, 301)
 }
 
 func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Delete User")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		sqlStatement := "DELETE FROM Users WHERE id=$1"
 		deleteForm, err := Db.Prepare(sqlStatement)
@@ -83,60 +88,78 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 		deleteForm.Exec(id)
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
+		http.Redirect(w, r, route.UsersRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.UsersRoute, 301)
 }
 
 func ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Users")
-	sec.IsAuthenticated(w, r)
-	query := "SELECT " +
-		"a.id, a.name, a.username, a.password, " +
-		"a.email, a.mobile, COALESCE(a.role_id, 0), COALESCE(b.name,'') " +
-		"FROM users a LEFT JOIN roles b ON a.role_id = b.id"
-	log.Println("Query: " + query)
-	rows, err := Db.Query(query)
-	sec.CheckInternalServerError(err, w)
-	var users []mdl.User
-	var user mdl.User
-	var i = 1
-	for rows.Next() {
-		err = rows.Scan(&user.Id,
-			&user.Name,
-			&user.Username,
-			&user.Password,
-			&user.Email,
-			&user.Mobile,
-			&user.Role,
-			&user.RoleName)
-		user.Order = i
-		i++
+	if sec.IsAuthenticated(w, r) {
+		currentUser := GetUserInCookie(w, r)
+		where_part := ""
+		if currentUser.Role != AdminRole {
+			curUsrId := strconv.FormatInt(currentUser.Id, 10)
+			where_part = " WHERE a.author_id = " + curUsrId +
+				" OR a.id = " + curUsrId +
+				" OR a.id = " + curUsrId
+		}
+		query := "SELECT " +
+			"a.id, a.name, a.username, a.password, " +
+			"a.email, a.mobile, COALESCE(a.role_id, 0), COALESCE(b.name,'') " +
+			"FROM users a LEFT JOIN roles b ON a.role_id = b.id" +
+			where_part + " order by a.name "
+		log.Println("Query: " + query)
+		rows, err := Db.Query(query)
 		sec.CheckInternalServerError(err, w)
-		users = append(users, user)
-	}
-	query = "SELECT id, name FROM roles ORDER BY name asc"
-	log.Println("Query Roles: " + query)
-	rows, err = Db.Query(query)
-	sec.CheckInternalServerError(err, w)
-	var roles []mdl.Role
-	var role mdl.Role
-	i = 1
-	for rows.Next() {
-		err = rows.Scan(&role.Id,
-			&role.Name)
-		role.Order = i
-		i++
+		var users []mdl.User
+		var user mdl.User
+		var i = 1
+		for rows.Next() {
+			err = rows.Scan(&user.Id,
+				&user.Name,
+				&user.Username,
+				&user.Password,
+				&user.Email,
+				&user.Mobile,
+				&user.Role,
+				&user.RoleName)
+			user.Order = i
+			i++
+			sec.CheckInternalServerError(err, w)
+			users = append(users, user)
+		}
+		where_part = ""
+		if currentUser.Role != AdminRole {
+			where_part = " WHERE id != 1 "
+		}
+		query = "SELECT id, name FROM roles " + where_part + "ORDER BY name asc"
+		log.Println("Query Roles: " + query)
+		rows, err = Db.Query(query)
 		sec.CheckInternalServerError(err, w)
-		roles = append(roles, role)
+		var roles []mdl.Role
+		var role mdl.Role
+		i = 1
+		for rows.Next() {
+			err = rows.Scan(&role.Id,
+				&role.Name)
+			role.Order = i
+			i++
+			sec.CheckInternalServerError(err, w)
+			roles = append(roles, role)
+		}
+		var page mdl.PageUsers
+		page.Users = users
+		page.Roles = roles
+		page.AppName = mdl.AppName
+		page.Title = "Usuários"
+		page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
+		var tmpl = template.Must(template.ParseGlob("tiles/users/*"))
+		tmpl.ParseGlob("tiles/*")
+		tmpl.ExecuteTemplate(w, "Main-Users", page)
+		sec.CheckInternalServerError(err, w)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	var page mdl.PageUsers
-	page.Users = users
-	page.Roles = roles
-	page.AppName = mdl.AppName
-	page.Title = "Usuários"
-	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
-	var tmpl = template.Must(template.ParseGlob("tiles/users/*"))
-	tmpl.ParseGlob("tiles/*")
-	tmpl.ExecuteTemplate(w, "Main-Users", page)
-	sec.CheckInternalServerError(err, w)
 }

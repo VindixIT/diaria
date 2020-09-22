@@ -1,10 +1,12 @@
 package security
 
 import (
+	"github.com/gorilla/sessions"
 	"net/http"
 )
 
-var Authenticated = false
+var CookieName = "diaria"
+var store = sessions.NewCookieStore([]byte("vindixit123581321"))
 
 func CheckInternalServerError(err error, w http.ResponseWriter) {
 	if err != nil {
@@ -13,8 +15,14 @@ func CheckInternalServerError(err error, w http.ResponseWriter) {
 	}
 }
 
-func IsAuthenticated(w http.ResponseWriter, r *http.Request) {
-	if !Authenticated {
-		http.Redirect(w, r, "/login", 301)
+func IsAuthenticated(w http.ResponseWriter, r *http.Request) bool {
+	session, err := store.Get(r, CookieName)
+	if err != nil {
+		return false
 	}
+	sessionUser := session.Values["user"]
+	if sessionUser == nil {
+		return false
+	}
+	return true
 }

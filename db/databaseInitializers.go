@@ -13,7 +13,7 @@ func Initialize() {
 	createSeq()
 	createTables()
 	createFeatures()
-	createRoleAdmin()
+	createSystemRoles()
 	createRoleFeatures()
 	createAdmin()
 	createPKey()
@@ -24,11 +24,26 @@ func Initialize() {
 	InitFoods()
 }
 
-func createRoleAdmin() {
+func createSystemRoles() {
 	query := " INSERT INTO roles (id, name) " +
 		" SELECT 1, 'Admin' " +
 		" WHERE NOT EXISTS (SELECT id FROM roles WHERE name = 'Admin')"
-	log.Println(query)
+	//log.Println(query)
+	db.Exec(query)
+	query = " INSERT INTO roles (id, name) " +
+		" SELECT 2, 'Cliente' " +
+		" WHERE NOT EXISTS (SELECT id FROM roles WHERE name = 'Cliente')"
+	//log.Println(query)
+	db.Exec(query)
+	query = " INSERT INTO roles (id, name) " +
+		" SELECT 3, 'Profissional' " +
+		" WHERE NOT EXISTS (SELECT id FROM roles WHERE name = 'Profissional')"
+	//log.Println(query)
+	db.Exec(query)
+	query = " INSERT INTO roles (id, name) " +
+		" SELECT 4, 'Cuidador' " +
+		" WHERE NOT EXISTS (SELECT id FROM roles WHERE name = 'Cuidador')"
+	//log.Println(query)
 	db.Exec(query)
 }
 
@@ -129,6 +144,10 @@ func createFKey() {
 		" REFERENCES public.users (id) MATCH SIMPLE" +
 		" ON UPDATE RESTRICT" +
 		" ON DELETE RESTRICT")
+	db.Exec("ALTER TABLE ONLY public.users ADD CONSTRAINT author_user_fkey FOREIGN KEY (author_id)" +
+		" REFERENCES public.users (id) MATCH SIMPLE" +
+		" ON UPDATE RESTRICT" +
+		" ON DELETE RESTRICT")
 
 }
 
@@ -146,9 +165,9 @@ func createPKey() {
 }
 
 func createAdmin() {
-	query := "INSERT INTO users (id, username, password, email, mobile, name, role_id)" +
+	query := "INSERT INTO users (id, username, password, email, mobile, name, role_id, author_id)" +
 		" SELECT 1, 'aria', '$2a$14$C1DIYDsmE0QHjje4wR5uwOAC7m8/YAUe8DYw/yuKIAQgRDibeCDMy', " +
-		" 'aria@vindixit.com', '61 984385415', 'Ária Ohashi', 1" +
+		" 'aria@vindixit.com', '61 984385415', 'Ária Ohashi', 1, 1 " +
 		" WHERE NOT EXISTS (SELECT id FROM users WHERE username = 'aria')"
 	log.Println(query)
 	db.Exec(query)
@@ -303,11 +322,13 @@ func createTables() {
 	db.Exec(
 		" CREATE TABLE IF NOT EXISTS public.users (" +
 			" id integer DEFAULT nextval('public.users_id_seq'::regclass) NOT NULL," +
+			" pro_id character varying(20) NULL," +
 			" username character varying(255) NOT NULL," +
 			" password character varying(255) NOT NULL," +
 			" email character varying(255) NOT NULL," +
 			" mobile character varying(255) NOT NULL," +
 			" role_id integer NOT NULL," +
+			" author_id integer NOT NULL," +
 			" name character varying(255))")
 
 	// Table BONDS
@@ -344,7 +365,7 @@ func createFeatures() {
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (15, 'Listar Usuários', 'listUsers')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (16, 'Criar Usuário', 'createUser')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (17, 'Listar Minhas Refeições', 'listMyMeals')")
-	db.Exec("INSERT INTO public.features (id, name, code) VALUES (18, 'Listar Meus Vínculos', 'listMyBonds')")
+	db.Exec("INSERT INTO public.features (id, name, code) VALUES (18, 'Listar Vínculos', 'listBonds')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (19, 'Criar Vínculo', 'createBond')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (20, 'Listar Refeicoes dos Clientes', 'listMyClients')")
 	db.Exec("INSERT INTO public.features (id, name, code) VALUES (21, 'Listar Meus Clientes', 'listBondsMeals')")

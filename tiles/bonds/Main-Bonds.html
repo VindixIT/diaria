@@ -1,0 +1,11 @@
+{{ define "Main-Bonds" }}
+<html lang="pt">
+	{{ template "Header" .Title }}
+<body>
+{{ template "Menu" . }}
+{{ template "Delete-Bond" }}
+{{ template "Create-Bond" . }}
+{{ template "List-Bonds" . }}
+</body>
+</html>
+{{end}}

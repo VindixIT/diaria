@@ -74,8 +74,11 @@ func DeleteFoodHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListFoodsHandler(w http.ResponseWriter, r *http.Request) {
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	log.Println("List Foods")
-	sec.IsAuthenticated(w, r)
 	query := "SELECT " +
 		" A.id, A.name, coalesce(A.measure,'') as measure,  coalesce(B.name,'') as measure_name, " +
 		" A.measure_id, A.qtd, A.cho, A.kcal " +

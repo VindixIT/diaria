@@ -38,6 +38,7 @@ func main() {
 	// injetando a variável Authenticated
 	http.HandleFunc("/", hd.IndexHandler)
 	http.HandleFunc("/login", hd.LoginHandler)
+	http.HandleFunc("/logout", hd.LogoutHandler)
 	// ----------------- FOODS
 	http.HandleFunc(route.FoodsRoute, hd.ListFoodsHandler)
 	http.HandleFunc("/createFood", hd.CreateFoodHandler)
@@ -54,10 +55,16 @@ func main() {
 	http.HandleFunc("/updateMeasure", hd.UpdateMeasureHandler)
 	http.HandleFunc("/deleteMeasure", hd.DeleteMeasureHandler)
 	// ----------------- MEALS
-	http.HandleFunc(route.MealsRoute, hd.ListarMealsHandler)
+	http.HandleFunc(route.MealsRoute, hd.ListMealsHandler)
+	http.HandleFunc("/listMyMeals", hd.ListMyMealsHandler)
 	http.HandleFunc("/createMeal", hd.CreateMealHandler)
 	http.HandleFunc("/updateMeal", hd.UpdateMealHandler)
 	http.HandleFunc("/deleteMeal", hd.DeleteMealHandler)
+	// ----------------- BONDS
+	http.HandleFunc(route.BondsRoute, hd.ListBondsHandler)
+	http.HandleFunc("/createBond", hd.CreateBondHandler)
+	http.HandleFunc("/updateBond", hd.UpdateBondHandler)
+	http.HandleFunc("/deleteBond", hd.DeleteBondHandler)
 	// ----------------- FEATURES
 	http.HandleFunc(route.FeaturesRoute, hd.ListFeaturesHandler)
 	http.HandleFunc("/createFeature", hd.CreateFeatureHandler)
@@ -73,6 +80,8 @@ func main() {
 	http.HandleFunc("/createUser", hd.CreateUserHandler)
 	http.HandleFunc("/updateUser", hd.UpdateUserHandler)
 	http.HandleFunc("/deleteUser", hd.DeleteUserHandler)
+	// ----------------- AJAX
+	http.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId)
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),

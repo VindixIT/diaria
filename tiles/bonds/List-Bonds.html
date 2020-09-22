@@ -1,5 +1,5 @@
-{{define "List-Features"}}
-<!-- List Features -->
+{{define "List-Bonds"}}
+<!-- List Bonds -->
 <div id="main" class="w3-row-padding">
 		<header class="w3-container w3-center w3-teal">
 		    <div class="aria">
@@ -12,7 +12,7 @@
 				    <h3>{{.Title}}</h3>
 				</div>
 				<div style="margin-top: 10px;text-align: right;z-index:1">
-					{{$allowed := (call .LoggedUser.HasPermission "createFeature")}}
+					{{$allowed := (call .LoggedUser.HasPermission "createBond")}}
 					{{if $allowed}}
 						{{.LoggedUser.User.Name}}
 					    <a href="#" onclick="setTime();document.getElementById('create-form').style.display='block'">
@@ -31,23 +31,23 @@
                 <th>Ord</th>
                 <th>Id</th>
                 <th>Nome</th>
-                <th>Código</th>
+                <th>Papel</th>
 				{{if $allowed}}
 				<th>Ações</th>
 				{{end}}
             </tr>
             </thead>
             <tbody>
-            {{range $index, $feature := .Features}}
+            {{range $index, $bond := .Bonds}}
             <tr>
-                <td>#{{$feature.Order}}</td>
-                <td>{{$feature.Id}}</td>
-                <td>{{$feature.Name}}</td>
-                <td>{{$feature.Code}}</td>
+                <td>#{{$bond.Order}}</td>
+                <td>{{$bond.Id}}</td>
+                <td>{{$bond.ProviderName}}</td>
+                <td>{{$bond.ProviderRoleName}}</td>
 				{{if $allowed}}
                 <td>
-                    <button class="w3-btn w3-teal" onclick="updatefeature(this);">Editar</button>
-                    <button class="w3-btn w3-red" onclick="deletefeature(this)">Apagar</button>
+                    <!--button class="w3-btn w3-teal" onclick="updatebond(this);">Editar</button-->
+                    <button class="w3-btn w3-red" onclick="deletebond(this)">Apagar</button>
                 </td>
 				{{end}}
             </tr>

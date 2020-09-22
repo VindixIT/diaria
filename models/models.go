@@ -30,6 +30,17 @@ type Role struct {
 	Features []Feature
 }
 
+type Bond struct {
+	Order            int
+	Id               int64  `json:"id"`
+	Provider         int    `json:"provider"`
+	Consumer         int    `json:"consumer"`
+	ProId            string `json:"providerName"`
+	ProviderName     string `json:"providerName"`
+	ProviderRoleName string `json:"providerRoleName"`
+	Selected         bool
+}
+
 type Feature struct {
 	Order int
 	Id    int64  `json:"id"`
@@ -107,12 +118,14 @@ type Measure struct {
 }
 
 type PageMeasures struct {
+	AppName    string
 	Title      string
 	Measures   []Measure
 	LoggedUser LoggedUser
 }
 
 type PageMeals struct {
+	AppName    string
 	Title      string
 	Meals      []Meal
 	MealTypes  []MealType
@@ -121,12 +134,14 @@ type PageMeals struct {
 }
 
 type PageMealTypes struct {
+	AppName    string
 	Title      string
 	MealTypes  []MealType
 	LoggedUser LoggedUser
 }
 
 type PageFoods struct {
+	AppName    string
 	Title      string
 	Foods      []Food
 	Measures   []Measure
@@ -145,6 +160,14 @@ type PageFeatures struct {
 	AppName    string
 	Title      string
 	Features   []Feature
+	LoggedUser LoggedUser
+}
+
+type PageBonds struct {
+	AppName    string
+	Title      string
+	Bonds      []Bond
+	Pros       []Bond
 	LoggedUser LoggedUser
 }
 

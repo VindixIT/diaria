@@ -16,25 +16,24 @@ import (
 )
 
 func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Create Meal")
-
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		mealType := r.FormValue("MealTypeForInsert")
 		date := r.FormValue("DateForInsert")
 		startAt := r.FormValue("StartAtForInsert")
 		endAt := r.FormValue("EndAtForInsert")
 		bolus := r.FormValue("BolusForInsert")
+		currentUser := GetUserInCookie(w, r)
 		if bolus == "" {
 			bolus = "0"
 		}
-		sqlStatement := "INSERT INTO meals(meal_type_id, date, start_at, end_at, bolus) VALUES ($1,$2,$3,$4,$5) RETURNING id"
+		sqlStatement := "INSERT INTO meals(meal_type_id, date, start_at, end_at, bolus, author_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
 		mealId := 0
 		var err error
 		if endAt == "" {
-			err = Db.QueryRow(sqlStatement, mealType, date, startAt, pq.NullTime{}, bolus).Scan(&mealId)
+			err = Db.QueryRow(sqlStatement, mealType, date, startAt, pq.NullTime{}, bolus, currentUser.Id).Scan(&mealId)
 		} else {
-			err = Db.QueryRow(sqlStatement, mealType, date, startAt, endAt, bolus).Scan(&mealId)
+			err = Db.QueryRow(sqlStatement, mealType, date, startAt, endAt, bolus, currentUser.Id).Scan(&mealId)
 		}
 		sec.CheckInternalServerError(err, w)
 		if err != nil {
@@ -71,8 +70,10 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 		l += " | endAt: " + endAt
 		l += " | Bolus: " + bolus
 		log.Println(l)
+		http.Redirect(w, r, route.MealsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.MealsRoute, 301)
 }
 
 func extraiValor(arr []string) string {
@@ -116,13 +117,15 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 		startAt := r.FormValue("StartAtForUpdate")
 		endAt := r.FormValue("EndAtForUpdate")
 		bolus := r.FormValue("BolusForUpdate")
+		currentUser := GetUserInCookie(w, r)
 		sqlStatement := "UPDATE meals SET " +
 			" meal_type_id = $1, " +
 			" date = $2, " +
 			" start_at = $3, " +
 			" end_at = $4, " +
-			" bolus = $5 " +
-			" WHERE id = $6"
+			" bolus = $5, " +
+			" author_id = $6 " +
+			" WHERE id = $7"
 		log.Println(sqlStatement)
 		updtForm, err := Db.Prepare(sqlStatement)
 		sec.CheckInternalServerError(err, w)
@@ -131,16 +134,17 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		sec.CheckInternalServerError(err, w)
 		if endAt == "" {
-			updtForm.Exec(mealType, date, startAt, pq.NullTime{}, bolus, mealId)
+			updtForm.Exec(mealType, date, startAt, pq.NullTime{}, bolus, currentUser.Id, mealId)
 		} else {
-			updtForm.Exec(mealType, date, startAt, endAt, bolus, mealId)
+			updtForm.Exec(mealType, date, startAt, endAt, bolus, currentUser.Id, mealId)
 		}
 		log.Println("UPDATE: Id: " + mealId +
 			" | MealTypeId: " + mealType +
 			" | Date: " + date +
 			" | Start At: " + startAt +
 			" | End At: " + endAt +
-			" | Bolus: " + bolus)
+			" | Bolus: " + bolus +
+			" | Id: " + strconv.FormatInt(currentUser.Id, 10))
 
 		var itemsDB = ListItemsHandler(mealId)
 		var itemsPage []mdl.Item
@@ -244,9 +248,12 @@ func remove(items []mdl.Item, itemToBeRemoved mdl.Item) []mdl.Item {
 	return newItems
 }
 
-func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
+func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Listar Meals")
-	sec.IsAuthenticated(w, r)
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	query := "SELECT " +
 		"R1.meal_id, " +
 		"R1.meal_type_id, " +
@@ -370,6 +377,142 @@ func ListarMealsHandler(w http.ResponseWriter, r *http.Request) {
 	page.Foods = foods
 	page.Title = "Refeições"
 	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
+	var tmpl = ttemplate.Must(ttemplate.ParseGlob("tiles/meals/*"))
+	tmpl.ParseGlob("tiles/*")
+	tmpl.Funcs(funcMap)
+	tmpl.ExecuteTemplate(w, "Main-Meal", page)
+	sec.CheckInternalServerError(err, w)
+}
+
+func ListMyMealsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("List My Meals")
+	sec.IsAuthenticated(w, r)
+	currentUser := GetUserInCookie(w, r)
+	query := "SELECT " +
+		"R1.meal_id, " +
+		"R1.meal_type_id, " +
+		"R1.meal_type_name, " +
+		"R1.meal_date, " +
+		"R1.start_at, " +
+		"R1.end_at, " +
+		"R1.c_meal_date, " +
+		"R1.c_start_at, " +
+		"R1.c_end_at, " +
+		"coalesce(R2.cho_total,0)," +
+		"coalesce(R2.kcal_total,0), " +
+		"coalesce(R1.bolus,0) " +
+		"FROM " +
+		"( " +
+		"SELECT  " +
+		"a.id as meal_id, b.id as meal_type_id, b.name as meal_type_name, " +
+		"a.date as meal_date, a.start_at as start_at, a.end_at as end_at, " +
+		"coalesce(to_char(a.date,'DD/MM/YYYY'),'') as c_meal_date, " +
+		"coalesce(to_char(a.start_at,'HH24:MI:SS'),'') as c_start_at, " +
+		"coalesce(to_char(a.end_at,'HH24:MI:SS'),'') as c_end_at, " +
+		"coalesce(a.bolus,0.00) as bolus FROM " +
+		"meals a, meal_types b " +
+		"WHERE a.meal_type_id = b.id " +
+		"AND a.author_id in (select service_consumer_id from bonds where service_provider_id = $1) " +
+		"order by a.id desc " +
+		") R1 LEFT OUTER JOIN " +
+		"(SELECT a.id as meal_id, " +
+		"sum(b.cho) as cho_total, " +
+		"sum(b.kcal) as kcal_total " +
+		"from meals a, items b " +
+		"where a.id = b.meal_id " +
+		"group by a.id " +
+		"order by a.id desc " +
+		" ) R2 " +
+		"ON R1.meal_id = R2.meal_id "
+
+	log.Println("QUERY: " + query)
+	rows, err := Db.Query(query, currentUser.Id)
+	sec.CheckInternalServerError(err, w)
+	var funcMap = ttemplate.FuncMap{
+		"multiplication": func(n float64, f float64) float64 {
+			return n * f
+		},
+		"addOne": func(n int) int {
+			return n + 1
+		},
+	}
+	var meals []mdl.Meal
+	var meal mdl.Meal
+	var i = 1
+	for rows.Next() {
+		err = rows.Scan(
+			&meal.Id,
+			&meal.MealTypeId,
+			&meal.MealTypeName,
+			&meal.Date,
+			&meal.StartAt,
+			&meal.EndAt,
+			&meal.CDate,
+			&meal.CStartAt,
+			&meal.CEndAt,
+			&meal.CCho,
+			&meal.CKcal,
+			&meal.Bolus)
+		sec.CheckInternalServerError(err, w)
+		meal.Order = i
+		i++
+		meals = append(meals, meal)
+	}
+	rows, err = Db.Query("SELECT id, name, start_at, end_at FROM meal_types")
+	sec.CheckInternalServerError(err, w)
+	var mealTypes []mdl.MealType
+	var mealType mdl.MealType
+	now := GetNow()
+	for rows.Next() {
+		err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt)
+		sec.CheckInternalServerError(err, w)
+		if mealType.EndAt.Before(mealType.StartAt) {
+			//			log.Println("mealType.EndAt.Before(mealType.StartAt)")
+			if mealType.StartAt.Before(now) && GetMidnight().After(now) {
+				mealType.Selected = true
+			} else {
+				//				log.Println("GetMidnight().Before(now) && mealType.EndAt.After(now)")
+				//				log.Println("now: " + now.String())
+				//				log.Println("midnight: " + GetMidnight().String())
+				//				log.Println("mealType.EndAt: " + mealType.EndAt.String())
+				if GetMidnight().Before(now) && mealType.EndAt.After(now) {
+					//					log.Println("true")
+					mealType.Selected = true
+				} else {
+					//					log.Println("false")
+					mealType.Selected = false
+				}
+			}
+		} else {
+			//			log.Println("mealType.StartAt.Before(now) && mealType.EndAt.After(now)")
+			if mealType.StartAt.Before(now) && mealType.EndAt.After(now) {
+				mealType.Selected = true
+			} else {
+				mealType.Selected = false
+			}
+		}
+		mealTypes = append(mealTypes, mealType)
+	}
+	query = "SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
+		"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc"
+	log.Println(query)
+	rows, err = Db.Query(query)
+	sec.CheckInternalServerError(err, w)
+	var foods []mdl.Food
+	var food mdl.Food
+	for rows.Next() {
+		err = rows.Scan(&food.Id, &food.Name, &food.Measure, &food.Qtd, &food.Cho, &food.Kcal)
+		sec.CheckInternalServerError(err, w)
+		foods = append(foods, food)
+	}
+
+	var page mdl.PageMeals
+	page.Meals = meals
+	page.AppName = mdl.AppName
+	page.MealTypes = mealTypes
+	page.Foods = foods
+	page.Title = "Minhas Refeições"
+	page.LoggedUser = BuildLoggedUser(currentUser)
 	var tmpl = ttemplate.Must(ttemplate.ParseGlob("tiles/meals/*"))
 	tmpl.ParseGlob("tiles/*")
 	tmpl.Funcs(funcMap)

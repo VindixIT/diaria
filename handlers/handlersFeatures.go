@@ -90,7 +90,10 @@ func DeleteFeaturesHandler(diffDB []mdl.Feature) {
 
 func ListFeaturesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Features")
-	sec.IsAuthenticated(w, r)
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	rows, err := Db.Query("SELECT id, name, code FROM features order by id asc")
 	sec.CheckInternalServerError(err, w)
 	var features []mdl.Feature

@@ -12,7 +12,10 @@ import (
 )
 
 func CreateRoleHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	log.Println("Create Role")
 	if r.Method == "POST" {
 		r.ParseForm()

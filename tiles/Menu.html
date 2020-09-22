@@ -3,10 +3,10 @@
   <a href="javascript:void(0)" class="closebtn" onclick="navGadget()">&times;</a>
   <a href="#">Sobre</a>
   {{if (call .LoggedUser.HasPermission "listMyMeals")}}
-  <a href="/listarMinhasRefeicoes">Minhas Refeições</a>
+  <a href="/listMyMeals">Minhas Refeições</a>
   {{end}}
-  {{if (call .LoggedUser.HasPermission "listMyBonds")}}
-  <a href="/listarMeusVinculos">Meus Vínculos</a>
+  {{if (call .LoggedUser.HasPermission "listBonds")}}
+  <a href="/listBonds">Vínculos</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listBondsMeals")}}
   <a href="/listarRefeicoesMeusClientes">Refeições dos Clientes</a>

@@ -11,7 +11,10 @@ import (
 )
 
 func CreateMeasureHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	log.Println("Create Measure")
 	if r.Method == "POST" {
 		name := r.FormValue("Name")
@@ -81,6 +84,7 @@ func ListMeasuresHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var page mdl.PageMeasures
 	page.Measures = measures
+	page.AppName = mdl.AppName
 	page.Title = "Medidas Usuais"
 	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
 	var tmpl = template.Must(template.ParseGlob("tiles/measures/*"))

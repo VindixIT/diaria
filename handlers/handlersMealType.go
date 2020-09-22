@@ -66,7 +66,10 @@ func DeleteMealTypeHandler(w http.ResponseWriter, r *http.Request) {
 
 func ListMealTypesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Meal Types")
-	sec.IsAuthenticated(w, r)
+	if !sec.IsAuthenticated(w, r) {
+		http.ServeFile(w, r, "tmpl/login.html")
+		return
+	}
 	rows, err := Db.Query("SELECT id, name, start_at, end_at, to_char(start_at,'HH24:MI:SS') as c_start_at, to_char(end_at,'HH24:MI:SS') as c_end_at FROM meal_types")
 	sec.CheckInternalServerError(err, w)
 	var mealTypes []mdl.MealType
@@ -81,6 +84,7 @@ func ListMealTypesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var page mdl.PageMealTypes
 	page.MealTypes = mealTypes
+	page.AppName = mdl.AppName
 	page.Title = "Tipos de Refeições"
 	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
 	var tmpl = template.Must(template.ParseGlob("tiles/mealTypes/*"))
