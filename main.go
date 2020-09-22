@@ -4,13 +4,15 @@ import (
 	"database/sql"
 	dpk "diaria/db"
 	hd "diaria/handlers"
-	//	sec "diaria/security"
+
+	//	sec "diaria/security "
 	route "diaria/routes"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func determineListenAddress() (string, error) {
