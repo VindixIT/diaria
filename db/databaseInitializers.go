@@ -105,6 +105,18 @@ func createRoleFeatures() {
 }
 
 func createFKey() {
+	db.Exec("ALTER TABLE ONLY public.favorites_items " +
+		" ADD CONSTRAINT authors_fkey FOREIGN KEY (author_id) " +
+		" REFERENCES public.users(id) " +
+		" ON UPDATE RESTRICT ON DELETE RESTRICT")
+	db.Exec("ALTER TABLE ONLY public.favorites_items " +
+		" ADD CONSTRAINT meal_types_fkey FOREIGN KEY (meal_type_id) " +
+		" REFERENCES public.meal_types(id) " +
+		" ON UPDATE RESTRICT ON DELETE RESTRICT")
+	db.Exec("ALTER TABLE ONLY public.favorites_items " +
+		" ADD CONSTRAINT foods_fkey FOREIGN KEY (food_id) " +
+		" REFERENCES public.foods(id) " +
+		" ON UPDATE RESTRICT ON DELETE RESTRICT")
 	db.Exec("ALTER TABLE ONLY public.items " +
 		" ADD CONSTRAINT foods_fkey FOREIGN KEY (food_id) " +
 		" REFERENCES public.foods(id) " +
@@ -140,6 +152,7 @@ func createFKey() {
 }
 
 func createPKey() {
+	db.Exec("ALTER TABLE ONLY public.favorites_items ADD CONSTRAINT favorites_items_pkey PRIMARY KEY (id)")
 	db.Exec("ALTER TABLE ONLY public.items ADD CONSTRAINT items_pkey PRIMARY KEY (id)")
 	db.Exec("ALTER TABLE ONLY public.foods ADD CONSTRAINT foods_pkey PRIMARY KEY (id)")
 	db.Exec("ALTER TABLE ONLY public.meal_types ADD CONSTRAINT meal_types_pkey PRIMARY KEY (id)")
@@ -171,6 +184,13 @@ func createSeq() {
 		" CACHE 1")
 	// Sequence ITEMS_ID_SEQ
 	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.items_id_seq " +
+		" START WITH 1" +
+		" INCREMENT BY 1" +
+		" NO MINVALUE" +
+		" NO MAXVALUE" +
+		" CACHE 1")
+	// Sequence FAVORITES_ITEMS_ID_SEQ
+	db.Exec("CREATE SEQUENCE IF NOT EXISTS public.favorites_items_id_seq " +
 		" START WITH 1" +
 		" INCREMENT BY 1" +
 		" NO MINVALUE" +
@@ -266,6 +286,16 @@ func createTables() {
 			" cho double precision, " +
 			" kcal double precision, " +
 			" food_id integer )")
+
+	// Table FAVORITES_ITEMS
+	db.Exec(
+		" CREATE TABLE public.favorites_items (" +
+			" id integer DEFAULT nextval('favorites_items_id_seq'::regclass)," +
+			" food_id integer," +
+			" meal_type_id integer," +
+			" quantidade_medida_usual double precision," +
+			" quantidade_g_ml double precision," +
+			" author_id integer )")
 
 	// Table MEAL_TYPES
 	db.Exec(

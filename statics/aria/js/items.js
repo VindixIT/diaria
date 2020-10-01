@@ -2,15 +2,16 @@
 var item_tobe_deleted;
 	
 class Item {
-	constructor(id, mealId, foodId, foodName, qtdMedida, qtd, cho, kcal) {
-	this.id = id;
-	this.mealId = mealId;
-	this.foodId = foodId;
-	this.foodName = foodName;
-	this.qtdMedida = qtdMedida;
-	this.qtd = qtd;
-	this.cho = cho;
-	this.kcal = kcal;
+	constructor(id, mealId, foodId, foodName, qtdMedida, qtd, cho, kcal, star) {
+		this.id = id;
+		this.mealId = mealId;
+		this.foodId = foodId;
+		this.foodName = foodName;
+		this.qtdMedida = qtdMedida;
+		this.qtd = qtd;
+		this.cho = cho;
+		this.kcal = kcal;
+		this.star = star;
 	}
 }
 
@@ -35,14 +36,14 @@ function criarItem(){
 		alert(erros);
 		return;
 	}
-	item = new Item(items.length, "", foodId, "", qtdMedida, qtd, cho, kcal);
+	item = new Item(items.length, "", foodId, "", qtdMedida, qtd, cho, kcal, false);
 	items.push(item);
 	addRow("table-items-"+contexto, foodName);
 	limparCamposItemForm('create');
 	document.getElementById('create-item-form').style.display='none';
 }
 
-function editarItem(){
+function updateItem(){
 	var a = document.getElementById('alimento-edit');
 	var id = document.getElementById('id-edit').value;
 	var mealid = document.getElementById('meal-id-edit').value;
@@ -64,7 +65,7 @@ function editarItem(){
 		alert(erros);
 		return;
 	}
-	item = new Item(id, mealid, foodid, "", qtdMedida, qtd, cho, kcal);
+	item = new Item(id, mealid, foodid, "", qtdMedida, qtd, cho, kcal, false);
 	items[order]=item;
 	updateRow("table-items-"+contexto,order,foodName);
 	limparCamposItemForm('edit');
@@ -102,24 +103,24 @@ function deleteitem() {
 }
 
 
-function updateitem(e) {
+function editItem(e) {
 	var editItemForm = document.getElementById('edit-item-form');
 	editItemForm.style.display = 'block';
-	var id = e.parentNode.parentNode.childNodes[0].childNodes[1].value;
+	var id = e.parentNode.parentNode.childNodes[1].childNodes[1].value;
 	// alert('id: '+id);
 	var mealId = document.getElementById('MealIdForUpdate').value;
 	// alert('mealId: '+mealId);
-	var foodId = e.parentNode.parentNode.childNodes[0].childNodes[2].value;
+	var foodId = e.parentNode.parentNode.childNodes[1].childNodes[2].value;
 	// alert('foodId: '+foodId);
-	var order = e.parentNode.parentNode.childNodes[0].childNodes[0].value;
+	var order = e.parentNode.parentNode.childNodes[1].childNodes[0].value;
 	// alert('order: '+order);
-	var qtdMedida = e.parentNode.parentNode.childNodes[1].innerText;
+	var qtdMedida = e.parentNode.parentNode.childNodes[2].innerText;
 	// alert('qtdMedida: '+qtdMedida);
-	var qtd = e.parentNode.parentNode.childNodes[2].innerText;
+	var qtd = e.parentNode.parentNode.childNodes[3].innerText;
 	// alert('qtd: '+qtd);
-	var cho = e.parentNode.parentNode.childNodes[3].innerText;
+	var cho = e.parentNode.parentNode.childNodes[4].innerText;
 	// alert('cho: '+cho);
-	var kcal = e.parentNode.parentNode.childNodes[4].innerText;
+	var kcal = e.parentNode.parentNode.childNodes[5].innerText;
 	//alert('kcal: '+kcal);
 	// Atribuindo os valores de edit-item-form
 	document.getElementById('id-edit').value=id;
