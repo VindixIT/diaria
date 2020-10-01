@@ -13,7 +13,7 @@ function addRow(tableID, foodName) {
 	item = items[order];
 	// alimento
 	let newCell = newRow.insertCell(0);
-	newCell.innerHTML = '<a href="#" onclick="changeStar(this,'+order+')"><i class="icon ion-ios-star-outline w3-large hoverbtn"></i></a>';
+	newCell.innerHTML = '<a href="#" onclick="changeStarItem(this,'+order+')"><i class="icon ion-ios-star-outline w3-large hoverbtn"></i></a>';
 	newCell = newRow.insertCell(1);
 	let newText = document.createTextNode(foodName);
 	// *-----------------*
@@ -86,23 +86,23 @@ function updateRow(tableID, order, foodName){
 	row.childNodes[4].innerText = items[order].kcal;
 }
 
-function changeStar(e, order){
-	//alert('chegou a entrar em changeStar?');
+function changeStarItem(e, order){
 	if(e.innerHTML.includes('outline')){
-		//alert('if');
 		e.innerHTML = '<i style="color: orange" class="icon ion-ios-star w3-large hoverbtn"></i>';
 		items[order].star = true;
 	} else {
-		//alert('else');
 		e.innerHTML = '<i class="icon ion-ios-star-outline w3-large hoverbtn"></i>';
 		items[order].star = false;
 	}
-	//alert(''+items[order].star);
+	if(contexto == 'insert'){
+		mealTypeId = document.getElementById('MealTypeForInsert').value;
+	} else {
+		mealTypeId = document.getElementById('MealTypeForUpdate').value;
+	}
+	markItemAsFavorite(items[order], mealTypeId, items[order].star);
 	let itemN = document.getElementById('item'+order);
-	//alert('passei pelo let aqui');
 	let jsonItem = stringifyItem(items[order]);
 	itemN.value = jsonItem;
-	//alert('passei pelo stringifyItem');
 }
 
 function stringifyItem(item){

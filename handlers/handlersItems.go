@@ -143,3 +143,40 @@ func CreateNewItemHandler(w http.ResponseWriter, diffPage []mdl.Item) {
 		log.Println("itemid: " + strconv.Itoa(itemid))
 	}
 }
+
+func MarkItemAsFavorite(w http.ResponseWriter, r *http.Request) {
+	log.Println("Mark Item As Favorite")
+	r.ParseForm()
+	var mealTypeId = r.FormValue("mealTypeId")
+	log.Println("mealTypeId: " + mealTypeId)
+	var foodId = r.FormValue("foodId")
+	log.Println("foodId: " + foodId)
+	var qtd = r.FormValue("qtd")
+	log.Println("qtd: " + qtd)
+	var qtdMedida = r.FormValue("qtdMedida")
+	log.Println("qtdMedida: " + qtdMedida)
+	var selected = r.FormValue("selected")
+	log.Println("selected: " + selected)
+	var create, _ = strconv.ParseBool(selected)
+	savedUser := GetUserInCookie(w, r)
+	if create {
+		insertItemAsFavorite(mealTypeId, foodId, qtd, qtdMedida, savedUser.Id)
+	} else {
+		deleteItemAsFavorite(mealTypeId, foodId, qtdMedida, savedUser.Id)
+	}
+	w.Write([]byte(""))
+	log.Println("JSON Mark Item As Favorite")
+}
+
+func insertItemAsFavorite(mealTypeId string, foodId string, qtd string, qtdMedida string, authorId int64) {
+	sqlStatement := "INSERT INTO favorites_items(meal_type_id, food_id, quantidade_g_ml, quantidade_medida_usual, author_id) VALUES ($1,$2,$3,$4,$5)"
+	log.Println(sqlStatement)
+	Db.QueryRow(sqlStatement, mealTypeId, foodId, qtd, qtdMedida, authorId)
+}
+
+func deleteItemAsFavorite(mealTypeId string, foodId string, qtdMedida string, authorId int64) {
+	sqlStatement := "DELETE FROM favorites_items WHERE meal_type_id = $1 AND food_id = $2 AND quantidade_medida_usual = $3  AND author_id = $4 "
+	log.Println(sqlStatement)
+	deleteForm, _ := Db.Prepare(sqlStatement)
+	deleteForm.Exec(mealTypeId, foodId, qtdMedida, authorId)
+}

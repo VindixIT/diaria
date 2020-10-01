@@ -359,6 +359,8 @@ func createTables() {
 }
 
 func createUniqueKey() {
+	db.Exec(" ALTER TABLE ONLY public.favorites_items" +
+		" ADD CONSTRAINT favorites_items_unique_key UNIQUE (meal_type_id, food_id, quantidade_medida_usual)")
 	db.Exec(" ALTER TABLE ONLY public.features_roles" +
 		" ADD CONSTRAINT feature_role_unique_key UNIQUE (role_id, feature_id)")
 	db.Exec(" ALTER TABLE ONLY public.bonds" +

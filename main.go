@@ -84,6 +84,7 @@ func main() {
 	http.HandleFunc("/deleteUser", hd.DeleteUserHandler)
 	// ----------------- AJAX
 	http.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId)
+	http.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite)
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),

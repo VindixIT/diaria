@@ -159,3 +159,18 @@ function loadItensByMealId(idMeal){
 	xmlhttp.open("GET","/updateMeal?idMeal="+idMeal,true);
 	xmlhttp.send();
 }
+
+
+function markItemAsFavorite(item, mealTypeId, operation){
+	var xmlhttp;
+	xmlhttp=new XMLHttpRequest();
+	xmlhttp.onreadystatechange=function()
+	{
+			if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			{
+				console.log("markAsFavorite OK");
+			}
+	}
+	xmlhttp.open("GET","/markItemAsFavorite?mealTypeId="+mealTypeId+"&foodId="+item.foodId+"&qtd="+item.qtd+"&qtdMedida="+item.qtdMedida+"&selected="+operation,true);
+	xmlhttp.send();
+}
