@@ -12,12 +12,20 @@
 
             <form class="w3-container">
                 <label class="w3-label">Meus Itens Favoritos</label>
+				<script>
+					var favitems_ar = [];
+					var n = 0;
+				</script>	
 	            <select class="w3-input" onchange="" id="favItem-create">
 					<option value=""></option>
 					{{range $index, $favItem := .FavoriteItems }}
 	                <option value="{{$favItem.Id}}">
 						{{$favItem.FoodName}}
 					</option>
+					<script>
+						n++;
+						favitems_ar [n] = "{{$favItem.Id}}#{{$favItem.FoodId}}#{{$favItem.FoodName}}#{{$favItem.MealTypeId}}#{{$favItem.MealTypeName}}#{{$favItem.QtdMedida}}#{{$favItem.Qtd}}#{{$favItem.AuthorId}}";
+					</script>
 	            	{{end}}
 	            </select>
                 <label class="w3-label">Alimento</label>
