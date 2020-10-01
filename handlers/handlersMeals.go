@@ -35,7 +35,7 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			err = Db.QueryRow(sqlStatement, mealType, date, startAt, endAt, bolus, currentUser.Id).Scan(&mealId)
 		}
-		sec.CheckInternalServerError(err, w)
+
 		if err != nil {
 			panic(err.Error())
 		}
@@ -55,14 +55,13 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 				sqlStatement := "INSERT INTO items(meal_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal, food_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
 
 				err := Db.QueryRow(sqlStatement, mealId, qtdMedida, qtd, cho, kcal, foodid).Scan(&itemid)
-				sec.CheckInternalServerError(err, w)
+
 				if err != nil {
 					panic(err.Error())
 				}
 			}
 		}
 
-		sec.CheckInternalServerError(err, w)
 		l := "INSERT: Id: " + strconv.Itoa(mealId)
 		l += " | Date: " + date
 		l += " | MealType: " + mealType
@@ -101,7 +100,7 @@ func DeleteMealHandler(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 		deleteForm.Exec(id)
-		sec.CheckInternalServerError(err, w)
+
 		log.Println("DELETE: Id: " + id)
 	}
 	http.Redirect(w, r, route.MealsRoute, 301)
@@ -128,11 +127,11 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 			" WHERE id = $7"
 		log.Println(sqlStatement)
 		updtForm, err := Db.Prepare(sqlStatement)
-		sec.CheckInternalServerError(err, w)
+
 		if err != nil {
 			panic(err.Error())
 		}
-		sec.CheckInternalServerError(err, w)
+
 		if endAt == "" {
 			updtForm.Exec(mealType, date, startAt, pq.NullTime{}, bolus, currentUser.Id, mealId)
 		} else {
@@ -208,11 +207,11 @@ func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 				sqlStatement := "INSERT INTO items(meal_id, food_id, quantidade_medida_usual, quantidade_g_ml, cho, kcal) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id"
 				log.Println(sqlStatement)
 				err := Db.QueryRow(sqlStatement, item.MealId, item.FoodId, item.QtdMedida, item.Qtd, item.Cho, item.Kcal).Scan(&itemId)
-				sec.CheckInternalServerError(err, w)
+
 				if err != nil {
 					panic(err.Error())
 				}
-				sec.CheckInternalServerError(err, w)
+
 				// log.Println("itemid: " + strconv.Itoa(itemId))
 			}
 		}
@@ -332,12 +331,12 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("QUERY: " + query)
 		log.Println("Current User Id: " + curId)
-		rows, err := Db.Query(query)
+		rows, _ := Db.Query(query)
 		var meals []mdl.Meal
 		var meal mdl.Meal
 		var i = 1
 		for rows.Next() {
-			err = rows.Scan(
+			rows.Scan(
 				&meal.Id,
 				&meal.MealTypeId,
 				&meal.MealTypeName,
@@ -351,7 +350,7 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 				&meal.CKcal,
 				&meal.Bolus,
 				&meal.AuthorName)
-			sec.CheckInternalServerError(err, w)
+
 			meal.Order = i
 			i++
 			meals = append(meals, meal)
@@ -361,22 +360,21 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 			" INNER JOIN users b ON b.id = a.service_consumer_id " +
 			" WHERE a.service_provider_id = $1 "
 		log.Println("QUERY: " + query)
-		rows, err = Db.Query(query, curId)
+		rows, _ = Db.Query(query, curId)
 		var clients []mdl.User
 		var client mdl.User
 		for rows.Next() {
-			err = rows.Scan(&client.Id, &client.Name)
+			_ = rows.Scan(&client.Id, &client.Name)
 			if strconv.FormatInt(client.Id, 10) == clientId {
 				log.Println("clientId: " + clientId)
 				client.Selected = true
 			} else {
 				client.Selected = false
 			}
-			sec.CheckInternalServerError(err, w)
+
 			clients = append(clients, client)
 		}
 
-		sec.CheckInternalServerError(err, w)
 		var funcMap = ttemplate.FuncMap{
 			"multiplication": func(n float64, f float64) float64 {
 				return n * f
@@ -386,14 +384,13 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		rows, err = Db.Query("SELECT id, name, start_at, end_at FROM meal_types")
-		sec.CheckInternalServerError(err, w)
+		rows, _ = Db.Query("SELECT id, name, start_at, end_at FROM meal_types")
 		var mealTypes []mdl.MealType
 		var mealType mdl.MealType
 		now := GetNow()
 		for rows.Next() {
-			err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt)
-			sec.CheckInternalServerError(err, w)
+			_ = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt)
+
 			if mealType.EndAt.Before(mealType.StartAt) {
 				//			log.Println("mealType.EndAt.Before(mealType.StartAt)")
 				if mealType.StartAt.Before(now) && GetMidnight().After(now) {
@@ -424,20 +421,45 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 		query = "SELECT a.id, a.name, b.name as measure, a.qtd, a.cho, a.kcal FROM foods a " +
 			"LEFT JOIN measures b ON a.measure_id = b.id order by a.name asc"
 		log.Println(query)
-		rows, err = Db.Query(query)
-		sec.CheckInternalServerError(err, w)
+		rows, _ = Db.Query(query)
 		var foods []mdl.Food
 		var food mdl.Food
 		for rows.Next() {
-			err = rows.Scan(&food.Id, &food.Name, &food.Measure, &food.Qtd, &food.Cho, &food.Kcal)
-			sec.CheckInternalServerError(err, w)
+			_ = rows.Scan(&food.Id, &food.Name, &food.Measure, &food.Qtd, &food.Cho, &food.Kcal)
 			foods = append(foods, food)
+		}
+
+		query = "SELECT" +
+			" i.id, " +
+			" i.food_id, " +
+			" f.name, " +
+			" i.meal_type_id, " +
+			" m.name, " +
+			" i.quantidade_medida_usual, " +
+			" i.quantidade_g_ml, " +
+			" i.author_id " +
+			" FROM favorites_items i " +
+			" LEFT JOIN foods f ON i.food_id = f.id " +
+			" LEFT JOIN meal_types m ON i.meal_type_id = m.id " +
+			" WHERE i.author_id = $1 "
+		log.Println(query)
+		savedUser := GetUserInCookie(w, r)
+		rows, _ = Db.Query(query, savedUser.Id)
+		var favItems []mdl.FavoriteItem
+		var favItem mdl.FavoriteItem
+		for rows.Next() {
+			_ = rows.Scan(&favItem.Id, &favItem.FoodId, &favItem.FoodName,
+				&favItem.MealTypeId, &favItem.MealTypeName,
+				&favItem.QtdMedida, &favItem.Qtd, &favItem.AuthorId)
+			favItems = append(favItems, favItem)
 		}
 
 		var page mdl.PageMeals
 		page.Meals = meals
 		page.AppName = mdl.AppName
 		page.MealTypes = mealTypes
+		log.Println("Quantidade de Favoritos: " + strconv.Itoa(len(favItems)))
+		page.FavoriteItems = favItems
 		page.Foods = foods
 		filter.Clients = clients
 		page.Filter = filter
@@ -448,7 +470,6 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl.ParseGlob("tiles/*")
 		tmpl.Funcs(funcMap)
 		tmpl.ExecuteTemplate(w, "Main-Meal", page)
-		sec.CheckInternalServerError(err, w)
 	} else {
 		http.Redirect(w, r, "/logout", 301)
 	}

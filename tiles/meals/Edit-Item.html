@@ -11,6 +11,15 @@
             </div>
 
             <form class="w3-container">
+                <label class="w3-label">Meus Itens Favoritos</label>
+	            <select class="w3-input" onchange="" id="favItem-create">
+					<option value=""></option>
+					{{range $index, $favItem := .FavoriteItems }}
+	                <option value="{{$favItem.Id}}">
+						{{$favItem.FoodName}}
+					</option>
+	            	{{end}}
+	            </select>
 				<input type="hidden" id="id-edit" value="">
 				<input type="hidden" id="meal-id-edit" value="">
                 <label class="w3-label">Alimento</label>
@@ -20,7 +29,7 @@
 				</script>					
 	            <select class="w3-input" onchange="changeLabelMeasure(this); resetFields('edit');" id="alimento-edit">
 					<option value=""></option>
-					{{range $index, $food := . }}
+					{{range $index, $food := .Foods }}
 	                <option value="{{$food.Id}}">
 						{{$food.Name}}
 					</option>

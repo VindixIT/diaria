@@ -71,6 +71,17 @@ type Item struct {
 	Kcal      float64 `json:"kcal"`
 }
 
+type FavoriteItem struct {
+	Id           int64   `json:"id"`
+	FoodId       int64   `json:"foodId"`
+	FoodName     string  `json:"foodName"`
+	MealTypeId   int64   `json:"mealType"`
+	MealTypeName string  `json:"mealTypeName"`
+	QtdMedida    float64 `json:"qtdMedida"`
+	Qtd          float64 `json:"qtd"`
+	AuthorId     int64   `json:"authorId"`
+}
+
 type Meal struct {
 	Order        int
 	Id           int64    `json:"id"`
@@ -132,13 +143,14 @@ type PageMeasures struct {
 }
 
 type PageMeals struct {
-	AppName    string
-	Title      string
-	Meals      []Meal
-	MealTypes  []MealType
-	Foods      []Food
-	Filter     MealsFilter
-	LoggedUser LoggedUser
+	AppName       string
+	Title         string
+	Meals         []Meal
+	MealTypes     []MealType
+	Foods         []Food
+	FavoriteItems []FavoriteItem
+	Filter        MealsFilter
+	LoggedUser    LoggedUser
 }
 
 type PageMealTypes struct {
