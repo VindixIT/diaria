@@ -459,6 +459,8 @@ func GetNow() time.Time {
 	now := time.Now()
 	now = time.Date(now.Year(), now.Month(), now.Day(),
 		now.Hour(), now.Minute(), now.Second(), 0, br)
+	layout := "2020-10-01 11:22:55 -0300 -03"
+	newDate, err := time.ParseInLocation(layout, now, br)
 	strNow := now.String()
 	log.Println("------------------------------------------------------------------------")
 	log.Println("- Agora são " + strNow + " em America/Sao_Paulo. ")
