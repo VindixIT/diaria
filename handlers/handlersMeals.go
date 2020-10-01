@@ -460,12 +460,12 @@ func GetNow() time.Time {
 	now = time.Date(now.Year(), now.Month(), now.Day(),
 		now.Hour(), now.Minute(), now.Second(), 0, br)
 	layout := "2020-10-01 11:22:55 -0300 -03"
-	newDate, err := time.ParseInLocation(layout, now, br)
 	strNow := now.String()
+	sNow, _ := time.ParseInLocation(layout, strNow, br)
 	log.Println("------------------------------------------------------------------------")
-	log.Println("- Agora são " + strNow + " em America/Sao_Paulo. ")
+	log.Println("- Agora são " + sNow.String() + " em America/Sao_Paulo. ")
 	log.Println("------------------------------------------------------------------------")
-	txtNow := strings.Split(strings.Split(strings.Split(strNow, " ")[1], ".")[0], ":")
+	txtNow := strings.Split(strings.Split(strings.Split(sNow.String(), " ")[1], ".")[0], ":")
 	hora, _ := strconv.Atoi(txtNow[0])
 	minuto, _ := strconv.Atoi(txtNow[1])
 	segundo, _ := strconv.Atoi(txtNow[2])
