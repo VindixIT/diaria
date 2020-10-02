@@ -89,6 +89,7 @@ func main() {
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),
 	)
+	http.Handle("/", r)
 	addr, err := determineListenAddress()
 	if err != nil {
 		log.Fatal(err)
