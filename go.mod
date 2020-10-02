@@ -3,7 +3,7 @@ module diaria
 go 1.14
 
 require (
-	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/lib/pq v1.8.0
 	github.com/unidoc/unidoc v2.2.0+incompatible
