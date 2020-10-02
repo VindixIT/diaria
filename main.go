@@ -60,7 +60,7 @@ func main() {
 	r.HandleFunc(route.MealsRoute, hd.ListMealsHandler).Methods("GET")
 	r.HandleFunc("/listMealsByFilter", hd.ListMealsHandler).Methods("GET")
 	r.HandleFunc("/createMeal", hd.CreateMealHandler).Methods("POST")
-	r.HandleFunc("/updateMeal", hd.UpdateMealHandler).Methods("POST")
+	r.HandleFunc("/updateMeal", hd.UpdateMealHandler)
 	r.HandleFunc("/deleteMeal", hd.DeleteMealHandler).Methods("POST")
 	// ----------------- BONDS
 	r.HandleFunc(route.BondsRoute, hd.ListBondsHandler).Methods("GET")
@@ -83,8 +83,8 @@ func main() {
 	r.HandleFunc("/updateUser", hd.UpdateUserHandler).Methods("POST")
 	r.HandleFunc("/deleteUser", hd.DeleteUserHandler).Methods("POST")
 	// ----------------- AJAX
-	r.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId)
-	r.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite)
+	r.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId).Methods("GET")
+	r.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite).Methods("GET")
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),
