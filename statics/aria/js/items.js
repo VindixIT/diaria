@@ -71,6 +71,8 @@ function updateItem(){
 }
 
 function limparCamposItemForm(form){
+	var f = document.getElementById('favItem-'+form);
+	f.options[f.selectedIndex].selected = false;
 	var a = document.getElementById('alimento-'+form);
 	a.options[a.selectedIndex].selected = false;
 	document.getElementById('qtdMedida-'+form).value = "";
@@ -159,7 +161,7 @@ function loadItensByMealId(idMeal){
 }
 
 
-function markItemAsFavorite(item, mealTypeId, operation){
+function markItemAsFavorite(item, mealTypeId, starred){
 	var xmlhttp;
 	xmlhttp=new XMLHttpRequest();
 	xmlhttp.onreadystatechange=function()
@@ -169,7 +171,7 @@ function markItemAsFavorite(item, mealTypeId, operation){
 				console.log("markAsFavorite OK");
 			}
 	}
-	xmlhttp.open("GET","/markItemAsFavorite?mealTypeId="+mealTypeId+"&foodId="+item.foodId+"&qtd="+item.qtd+"&qtdMedida="+item.qtdMedida+"&selected="+operation,true);
+	xmlhttp.open("GET","/markItemAsFavorite?mealTypeId="+mealTypeId+"&foodId="+item.foodId+"&qtd="+item.qtd+"&qtdMedida="+item.qtdMedida+"&selected="+starred,true);
 	xmlhttp.send();
 }
 
@@ -177,6 +179,7 @@ function preencherItemFavorito(favItemId){
 	for(n=0;n<favitems_ar.length;n++){
 		favId = favitems_ar[n];
 		if(favId){
+			// Fiz aqui para saber onde está travando.
 			let f = favId.split('#');
 			if(f[0]==favItemId){
 				// {{$favItem.Id}}#{{$favItem.FoodId}}#{{$favItem.FoodName}}#{{$favItem.MealTypeId}}#{{$favItem.MealTypeName}}#{{$favItem.QtdMedida}}#{{$favItem.Qtd}}#{{$favItem.AuthorId}}
@@ -185,6 +188,7 @@ function preencherItemFavorito(favItemId){
 				let qtdMedida = f[5];
 				document.getElementById('qtdMedida-'+contexto).value = qtdMedida;
 				regraDeTresMedida(document.getElementById('qtdMedida-'+contexto),contexto);
+				return;
 			}
 		}
 	}
