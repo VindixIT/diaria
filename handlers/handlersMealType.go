@@ -69,28 +69,28 @@ func DeleteMealTypeHandler(w http.ResponseWriter, r *http.Request) {
 
 func ListMealTypesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Meal Types")
-	if !sec.IsAuthenticated(w, r) {
-		rows, err := Db.Query("SELECT id, name, start_at, end_at, to_char(start_at,'HH24:MI:SS') as c_start_at, to_char(end_at,'HH24:MI:SS') as c_end_at FROM meal_types")
+	//	if !sec.IsAuthenticated(w, r) {
+	rows, err := Db.Query("SELECT id, name, start_at, end_at, to_char(start_at,'HH24:MI:SS') as c_start_at, to_char(end_at,'HH24:MI:SS') as c_end_at FROM meal_types")
+	sec.CheckInternalServerError(err, w)
+	var mealTypes []mdl.MealType
+	var mealType mdl.MealType
+	var i = 1
+	for rows.Next() {
+		err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt, &mealType.CStartAt, &mealType.CEndAt)
+		mealType.Order = i
+		i++
 		sec.CheckInternalServerError(err, w)
-		var mealTypes []mdl.MealType
-		var mealType mdl.MealType
-		var i = 1
-		for rows.Next() {
-			err = rows.Scan(&mealType.Id, &mealType.Name, &mealType.StartAt, &mealType.EndAt, &mealType.CStartAt, &mealType.CEndAt)
-			mealType.Order = i
-			i++
-			sec.CheckInternalServerError(err, w)
-			mealTypes = append(mealTypes, mealType)
-		}
-		var page mdl.PageMealTypes
-		page.MealTypes = mealTypes
-		page.AppName = mdl.AppName
-		page.Title = "Tipos de Refeições"
-		page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
-		var tmpl = template.Must(template.ParseGlob("tiles/mealTypes/*"))
-		tmpl.ParseGlob("tiles/*")
-		tmpl.ExecuteTemplate(w, "Main-Meal-Type", page)
-	} else {
-		http.Redirect(w, r, "/logout", 301)
+		mealTypes = append(mealTypes, mealType)
 	}
+	var page mdl.PageMealTypes
+	page.MealTypes = mealTypes
+	page.AppName = mdl.AppName
+	page.Title = "Tipos de Refeições"
+	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
+	var tmpl = template.Must(template.ParseGlob("tiles/mealTypes/*"))
+	tmpl.ParseGlob("tiles/*")
+	tmpl.ExecuteTemplate(w, "Main-Meal-Type", page)
+	//	} else {
+	//		http.Redirect(w, r, "/logout", 301)
+	//	}
 }

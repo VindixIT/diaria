@@ -93,66 +93,66 @@ func DeleteBondsHandler(diffDB []mdl.Bond) {
 
 func ListBondsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Bonds")
-	if !sec.IsAuthenticated(w, r) {
-		currentUser := GetUserInCookie(w, r)
-		query := "SELECT " +
-			" a.id, " +
-			" coalesce(b.pro_id,'') as professional_id, " +
-			" b.name as provider_name, " +
-			" c.name as role_name " +
-			" FROM bonds a " +
-			" LEFT JOIN users b ON a.service_provider_id = b.id " +
-			" LEFT JOIN roles c ON b.role_id = c.id " +
-			" WHERE a.service_consumer_id = $1 " +
-			" ORDER BY 3, 2 asc"
-		log.Println(query)
-		rows, err := Db.Query(query, strconv.FormatInt(currentUser.Id, 10))
+	//	if !sec.IsAuthenticated(w, r) {
+	currentUser := GetUserInCookie(w, r)
+	query := "SELECT " +
+		" a.id, " +
+		" coalesce(b.pro_id,'') as professional_id, " +
+		" b.name as provider_name, " +
+		" c.name as role_name " +
+		" FROM bonds a " +
+		" LEFT JOIN users b ON a.service_provider_id = b.id " +
+		" LEFT JOIN roles c ON b.role_id = c.id " +
+		" WHERE a.service_consumer_id = $1 " +
+		" ORDER BY 3, 2 asc"
+	log.Println(query)
+	rows, err := Db.Query(query, strconv.FormatInt(currentUser.Id, 10))
+	sec.CheckInternalServerError(err, w)
+	var bonds []mdl.Bond
+	var bond mdl.Bond
+	var i = 1
+	for rows.Next() {
+		err = rows.Scan(&bond.Id, &bond.ProId, &bond.ProviderName, &bond.ProviderRoleName)
 		sec.CheckInternalServerError(err, w)
-		var bonds []mdl.Bond
-		var bond mdl.Bond
-		var i = 1
-		for rows.Next() {
-			err = rows.Scan(&bond.Id, &bond.ProId, &bond.ProviderName, &bond.ProviderRoleName)
-			sec.CheckInternalServerError(err, w)
-			bond.Order = i
-			i++
-			bonds = append(bonds, bond)
-		}
-
-		query = "SELECT a.id, " +
-			" coalesce(a.pro_id,''), " +
-			" a.name, " +
-			" b.name as role_name " +
-			" FROM users a, roles b " +
-			" WHERE a.role_id = b.id AND " +
-			" (a.role_id = $1 OR (a.role_id = $2 AND a.author_id = $3))"
-		log.Println(query)
-		rows, err = Db.Query(query, ProfessionalRole, CareGiverRole, currentUser.Id)
-		sec.CheckInternalServerError(err, w)
-		var professionals []mdl.Bond
-		var professional mdl.Bond
-		i = 1
-		for rows.Next() {
-			err = rows.Scan(&professional.Id, &professional.ProId, &professional.ProviderName, &professional.ProviderRoleName)
-			sec.CheckInternalServerError(err, w)
-			professional.Order = i
-			i++
-			professionals = append(professionals, professional)
-		}
-
-		var page mdl.PageBonds
-		page.Bonds = bonds
-		page.Pros = professionals
-		log.Println(len(professionals))
-		page.AppName = mdl.AppName
-		page.Title = "Vínculos"
-		page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
-		var tmpl = template.Must(template.ParseGlob("tiles/bonds/*"))
-		tmpl.ParseGlob("tiles/*")
-		tmpl.ExecuteTemplate(w, "Main-Bonds", page)
-	} else {
-		http.Redirect(w, r, "/logout", 301)
+		bond.Order = i
+		i++
+		bonds = append(bonds, bond)
 	}
+
+	query = "SELECT a.id, " +
+		" coalesce(a.pro_id,''), " +
+		" a.name, " +
+		" b.name as role_name " +
+		" FROM users a, roles b " +
+		" WHERE a.role_id = b.id AND " +
+		" (a.role_id = $1 OR (a.role_id = $2 AND a.author_id = $3))"
+	log.Println(query)
+	rows, err = Db.Query(query, ProfessionalRole, CareGiverRole, currentUser.Id)
+	sec.CheckInternalServerError(err, w)
+	var professionals []mdl.Bond
+	var professional mdl.Bond
+	i = 1
+	for rows.Next() {
+		err = rows.Scan(&professional.Id, &professional.ProId, &professional.ProviderName, &professional.ProviderRoleName)
+		sec.CheckInternalServerError(err, w)
+		professional.Order = i
+		i++
+		professionals = append(professionals, professional)
+	}
+
+	var page mdl.PageBonds
+	page.Bonds = bonds
+	page.Pros = professionals
+	log.Println(len(professionals))
+	page.AppName = mdl.AppName
+	page.Title = "Vínculos"
+	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
+	var tmpl = template.Must(template.ParseGlob("tiles/bonds/*"))
+	tmpl.ParseGlob("tiles/*")
+	tmpl.ExecuteTemplate(w, "Main-Bonds", page)
+	//	} else {
+	//		http.Redirect(w, r, "/logout", 301)
+	//	}
 }
 
 // AJAX

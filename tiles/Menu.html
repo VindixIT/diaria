@@ -6,13 +6,13 @@
   <a href="/listarRefeicoes">Refeições</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listBonds")}}
-  <a href="/listBonds">Vínculos</a>
+  <a href="/listarLigacoes">Vínculos</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listMealTypes")}}
-  <a href="/listarTiposRefeicoes">Tipos de Refeições</a>
+  <a href="/listarTipoRefeicao">Tipos de Refeições</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listFoods")}}
-  <a href="/listarFoods">Alimentos</a>
+  <a href="/listarAlimentos">Alimentos</a>
   {{end}}
   {{if (call .LoggedUser.HasPermission "listMeasures")}}
   <a href="/listarMedidasUsuais">Medidas Usuais</a>

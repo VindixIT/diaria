@@ -21,27 +21,27 @@ var ClientRole = int64(2)
 var ProfessionalRole = int64(3)
 var CareGiverRole = int64(4)
 
-var CookieName = "diaria"
-var store = sessions.NewCookieStore([]byte("vindixit123581321"))
-
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	//	log.Println("sec.Authenticated: " + strconv.FormatBool(sec.Authenticated))
-	sec.IsAuthenticated(w, r)
-	http.Redirect(w, r, route.MealsRoute, 200)
+	if sec.IsAuthenticated(w, r) {
+		http.Redirect(w, r, route.MealsRoute, 200)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
+	}
+	log.Println("IndexHandler")
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Logout Handler")
-	session, _ := store.Get(r, CookieName)
+	session, _ := sec.Store.Get(r, sec.CookieName)
 	delete(session.Values, "user")
 	session.Options.MaxAge = -1
 	_ = session.Save(r, w)
-	http.ServeFile(w, r, "tmpl/login.html")
+	http.ServeFile(w, r, "tiles/login.html")
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.ServeFile(w, r, "tmpl/login.html")
+		http.ServeFile(w, r, "tiles/login.html")
 		return
 	}
 	username := r.FormValue("usrname")
@@ -83,7 +83,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func GetUserInCookie(w http.ResponseWriter, r *http.Request) mdl.User {
 	sec.IsAuthenticated(w, r)
 	var savedUser mdl.User
-	session, _ := store.Get(r, CookieName)
+	session, _ := sec.Store.Get(r, sec.CookieName)
 	sessionUser := session.Values["user"]
 	if sessionUser != nil {
 		strUser := sessionUser.(string)
@@ -93,11 +93,11 @@ func GetUserInCookie(w http.ResponseWriter, r *http.Request) mdl.User {
 }
 
 func AddUserInCookie(w http.ResponseWriter, r *http.Request, user mdl.User) {
-	store.Options = &sessions.Options{
+	sec.Store.Options = &sessions.Options{
 		Path:   "/",
 		MaxAge: 300,
 	}
-	session, _ := store.Get(r, CookieName)
+	session, _ := sec.Store.Get(r, sec.CookieName)
 	bytesUser, _ := json.Marshal(&user)
 	session.Values["user"] = string(bytesUser)
 	session.Save(r, w)
