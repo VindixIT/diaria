@@ -13,7 +13,12 @@ function addRow(tableID, foodName) {
 	item = items[order];
 	// alimento
 	let newCell = newRow.insertCell(0);
-	newCell.innerHTML = '<a href="#" onclick="changeStarItem(this,'+order+')"><i class="icon ion-ios-star-outline w3-large hoverbtn"></i></a>';
+	let isFav = isFavoriteItem(item);
+	if(isFav){
+		newCell.innerHTML = '<a href="#" style="color: orange" onclick="changeStarItem(this,'+order+')"><i class="icon ion-ios-star w3-large hoverbtn"></i></a>';
+	} else {
+		newCell.innerHTML = '<a href="#" onclick="changeStarItem(this,'+order+')"><i class="icon ion-ios-star-outline w3-large hoverbtn"></i></a>';
+	}
 	newCell = newRow.insertCell(1);
 	let newText = document.createTextNode(foodName);
 	// *-----------------*
@@ -69,7 +74,13 @@ function updateRow(tableID, order, foodName){
 	let tableRef = document.getElementById(tableID);
 	let rowNumber = 3+parseInt(order);
 	let row = tableRef.childNodes[1].childNodes[rowNumber];
-	let celula = row.childNodes[0];
+	let isFav = isFavoriteItem(item);
+	if(isFav){
+		row.childNodes[0].innerHTML = '<a href="#" style="color: orange" onclick="changeStarItem(this,'+order+')"><i class="icon ion-ios-star w3-large hoverbtn"></i></a>';
+	} else {
+		row.childNodes[0].innerHTML = '<a href="#" onclick="changeStarItem(this,'+order+')"><i class="icon ion-ios-star-outline w3-large hoverbtn"></i></a>';
+	}
+	let celula = row.childNodes[1];
 	celula.innerText = foodName;
 	var jsonItem = JSON.stringify(items[order]);
 	jsonItem = jsonItem.split(',').join('#');
@@ -80,10 +91,10 @@ function updateRow(tableID, order, foodName){
 	celula.innerHTML = '<input type="hidden" name="foodid" value="'+items[order].foodId+'"/>'+celula.innerHTML;
 	celula.innerHTML = '<input type="hidden" name="id" value="'+items[order].id+'"/>'+celula.innerHTML;
 	celula.innerHTML = '<input type="hidden" name="order" value="'+order+'"/>'+celula.innerHTML;
-	row.childNodes[1].innerText = items[order].qtdMedida;
-	row.childNodes[2].innerText = items[order].qtd;
-	row.childNodes[3].innerText = items[order].cho;
-	row.childNodes[4].innerText = items[order].kcal;
+	row.childNodes[2].innerText = items[order].qtdMedida;
+	row.childNodes[3].innerText = items[order].qtd;
+	row.childNodes[4].innerText = items[order].cho;
+	row.childNodes[5].innerText = items[order].kcal;
 }
 
 function changeStarItem(e, order){
@@ -94,7 +105,7 @@ function changeStarItem(e, order){
 		e.innerHTML = '<i class="icon ion-ios-star-outline w3-large hoverbtn"></i>';
 		items[order].star = false;
 	}
-	if(contexto == 'insert'){
+	if(contexto == 'create'){
 		mealTypeId = document.getElementById('MealTypeForInsert').value;
 	} else {
 		mealTypeId = document.getElementById('MealTypeForUpdate').value;
@@ -114,3 +125,14 @@ function stringifyItem(item){
 	return jsonItem;
 }
 
+function isFavoriteItem(item){
+	for(i=0;i<favitems_ar.length;i++){
+		if(favitems_ar[i]){
+			let f = favitems_ar[i].split("#");
+			if(f[1]==item.foodId && f[5]==item.qtdMedida ){
+				return true;
+			}
+		}
+	}
+	return false;
+}

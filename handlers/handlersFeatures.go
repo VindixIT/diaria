@@ -12,9 +12,8 @@ import (
 )
 
 func CreateFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Create Feature")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		name := r.FormValue("Name")
 		code := r.FormValue("Code")
 		sqlStatement := "INSERT INTO features(name, code) VALUES ($1, $2) RETURNING id"
@@ -31,9 +30,8 @@ func CreateFeatureHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Update Feature")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		name := r.FormValue("Name")
 		code := r.FormValue("Code")
@@ -51,9 +49,8 @@ func UpdateFeatureHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Delete Feature")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		sqlStatement := "DELETE FROM features WHERE id=$1"
 		deleteForm, err := Db.Prepare(sqlStatement)

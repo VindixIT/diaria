@@ -60,6 +60,7 @@ function convertDate(dt){
 }
 
 function resetFields(form){
+	document.getElementById('favItem-'+form).value='';
 	document.getElementById('qtdMedida-'+form).value='';
 	document.getElementById('qtd-'+form).value='';
 	document.getElementById('cho-'+form).value='';

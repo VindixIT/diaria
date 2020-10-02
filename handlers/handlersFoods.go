@@ -11,9 +11,8 @@ import (
 )
 
 func CreateFoodHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Create Food")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		name := r.FormValue("Name")
 		measure := r.FormValue("Measure")
 		qtd := r.FormValue("Qtd")
@@ -28,14 +27,15 @@ func CreateFoodHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		sec.CheckInternalServerError(err, w)
 		log.Println("INSERT: Id: " + strconv.Itoa(id) + " | Name: " + name + " | Measure: " + measure + " | Qtd: " + qtd + " | Cho: " + cho + " | Kcal: " + kcal)
+		http.Redirect(w, r, route.FoodsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.FoodsRoute, 301)
 }
 
 func UpdateFoodHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Update Food")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		name := r.FormValue("Name")
 		measure := r.FormValue("Measure")
@@ -52,14 +52,15 @@ func UpdateFoodHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		updtForm.Exec(name, measure, qtd, cho, kcal, measureId, id)
 		log.Println("UPDATE: Id: " + id + " | Name: " + name + " | Measure: " + measure + " | Qtd: " + qtd + " | Cho: " + cho + " | Kcal: " + kcal)
+		http.Redirect(w, r, route.FoodsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.FoodsRoute, 301)
 }
 
 func DeleteFoodHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Delete Food")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		sqlStatement := "DELETE FROM foods WHERE id=$1"
 		deleteForm, err := Db.Prepare(sqlStatement)
@@ -69,52 +70,53 @@ func DeleteFoodHandler(w http.ResponseWriter, r *http.Request) {
 		deleteForm.Exec(id)
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
+		http.Redirect(w, r, route.FoodsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.FoodsRoute, 301)
 }
 
 func ListFoodsHandler(w http.ResponseWriter, r *http.Request) {
 	if !sec.IsAuthenticated(w, r) {
-		http.ServeFile(w, r, "tmpl/login.html")
-		return
-	}
-	log.Println("List Foods")
-	query := "SELECT " +
-		" A.id, A.name, coalesce(A.measure,'') as measure,  coalesce(B.name,'') as measure_name, " +
-		" A.measure_id, A.qtd, A.cho, A.kcal " +
-		" FROM foods A " +
-		" LEFT OUTER JOIN measures B " +
-		" ON A.measure_id = B.id ORDER BY name ASC"
-	log.Println("Query: " + query)
-	rows, err := Db.Query(query)
-	sec.CheckInternalServerError(err, w)
-	var foods []mdl.Food
-	var food mdl.Food
-	var i = 1
-	for rows.Next() {
-		err = rows.Scan(&food.Id, &food.Name, &food.Measure, &food.MeasureName, &food.MeasureId, &food.Qtd, &food.Cho, &food.Kcal)
+		log.Println("List Foods")
+		query := "SELECT " +
+			" A.id, A.name, coalesce(A.measure,'') as measure,  coalesce(B.name,'') as measure_name, " +
+			" A.measure_id, A.qtd, A.cho, A.kcal " +
+			" FROM foods A " +
+			" LEFT OUTER JOIN measures B " +
+			" ON A.measure_id = B.id ORDER BY name ASC"
+		log.Println("Query: " + query)
+		rows, err := Db.Query(query)
 		sec.CheckInternalServerError(err, w)
-		food.Order = i
-		i++
-		foods = append(foods, food)
-	}
-	var page mdl.PageFoods
-	page.Foods = foods
+		var foods []mdl.Food
+		var food mdl.Food
+		var i = 1
+		for rows.Next() {
+			err = rows.Scan(&food.Id, &food.Name, &food.Measure, &food.MeasureName, &food.MeasureId, &food.Qtd, &food.Cho, &food.Kcal)
+			sec.CheckInternalServerError(err, w)
+			food.Order = i
+			i++
+			foods = append(foods, food)
+		}
+		var page mdl.PageFoods
+		page.Foods = foods
 
-	var measures []mdl.Measure
-	var measure mdl.Measure
-	rows, err = Db.Query("SELECT id, name FROM measures order by name asc")
-	for rows.Next() {
-		err = rows.Scan(&measure.Id, &measure.Name)
-		sec.CheckInternalServerError(err, w)
-		measures = append(measures, measure)
-	}
+		var measures []mdl.Measure
+		var measure mdl.Measure
+		rows, err = Db.Query("SELECT id, name FROM measures order by name asc")
+		for rows.Next() {
+			err = rows.Scan(&measure.Id, &measure.Name)
+			sec.CheckInternalServerError(err, w)
+			measures = append(measures, measure)
+		}
 
-	page.Title = "Tabela de Alimentos"
-	page.Measures = measures
-	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
-	var tmpl = template.Must(template.ParseGlob("tiles/foods/*"))
-	tmpl.ParseGlob("tiles/*")
-	tmpl.ExecuteTemplate(w, "Main-Food", page)
-	sec.CheckInternalServerError(err, w)
+		page.Title = "Tabela de Alimentos"
+		page.Measures = measures
+		page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
+		var tmpl = template.Must(template.ParseGlob("tiles/foods/*"))
+		tmpl.ParseGlob("tiles/*")
+		tmpl.ExecuteTemplate(w, "Main-Food", page)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
+	}
 }

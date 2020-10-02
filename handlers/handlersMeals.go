@@ -84,9 +84,8 @@ func extraiValor(arr []string) string {
 }
 
 func DeleteMealHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Delete Meal")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		sqlStatement := "DELETE FROM Items WHERE meal_id=$1"
 		deleteForm, err := Db.Prepare(sqlStatement)
@@ -102,13 +101,15 @@ func DeleteMealHandler(w http.ResponseWriter, r *http.Request) {
 		deleteForm.Exec(id)
 
 		log.Println("DELETE: Id: " + id)
+		http.Redirect(w, r, route.MealsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.MealsRoute, 301)
 }
 
 func UpdateMealHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Update Meal")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		sec.IsAuthenticated(w, r)
 		mealId := r.FormValue("Id")
 		mealType := r.FormValue("MealTypeForUpdate")

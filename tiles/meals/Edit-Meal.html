@@ -30,17 +30,18 @@
 				<label class="w3-label">Bolus</label>
                 <input class="w3-input" type="number" id="BolusForUpdate" name="BolusForUpdate" value="">
 		        <header class="w3-container w3-center w3-teal">
-		            <div class="w3-row">
-		                <div class="w3-half">
-		                    <h4 class="w3-right">Itens</h4>
+		            <div class="aria">
+						<div style="margin-top: 6px;text-align: left;z-index:1">
+				    		<a style="font-size:28px">
+								&nbsp;
+				    		</a>
 		                </div>
-		                <div class="w3-half w3-text-right" style="position:relative;z-index:2">
-		                    <div class="w3-right">
-		                        <a href="#" onclick="contexto='edit';document.getElementById('create-item-form').style.display='block'">
-		                            <i class="icon ion-ios-plus-outline w3-xxlarge hoverbtn"></i>
-		                        </a>
-		                    </div>
-		                </div>
+	                	<h4>Itens</h4>
+						<div style="margin-top: 8px" id="create-form-item-btn" >
+						    <a href="#" onclick="contexto='edit';document.getElementById('create-item-form').style.display='block'">
+	                            <i class="icon ion-ios-plus-outline w3-xxlarge hoverbtn"></i>
+	                        </a>
+						</div>
 		            </div>
 		        </header>
 		        <table class="w3-table w3-centered w3-border w3-bordered w3-hoverable" id="table-items-edit">

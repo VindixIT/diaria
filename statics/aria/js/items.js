@@ -18,10 +18,8 @@ class Item {
 function criarItem(){
 	var a = document.getElementById('alimento-create');
 	var foodId = a.options[a.selectedIndex].value;
-	//alert(foodId);
 	var foodName = a.options[a.selectedIndex].text;
 	var qtdMedida = document.getElementById('qtdMedida-create').value;
-	//alert('qtdMedida '+qtdMedida);
 	var qtd = document.getElementById('qtd-create').value;
 	var cho = document.getElementById('cho-create').value;
 	var kcal = document.getElementById('kcal-create').value;
@@ -173,4 +171,21 @@ function markItemAsFavorite(item, mealTypeId, operation){
 	}
 	xmlhttp.open("GET","/markItemAsFavorite?mealTypeId="+mealTypeId+"&foodId="+item.foodId+"&qtd="+item.qtd+"&qtdMedida="+item.qtdMedida+"&selected="+operation,true);
 	xmlhttp.send();
+}
+
+function preencherItemFavorito(favItemId){
+	for(n=0;n<favitems_ar.length;n++){
+		favId = favitems_ar[n];
+		if(favId){
+			let f = favId.split('#');
+			if(f[0]==favItemId){
+				// {{$favItem.Id}}#{{$favItem.FoodId}}#{{$favItem.FoodName}}#{{$favItem.MealTypeId}}#{{$favItem.MealTypeName}}#{{$favItem.QtdMedida}}#{{$favItem.Qtd}}#{{$favItem.AuthorId}}
+				let foodId = f[1];
+				document.getElementById('alimento-'+contexto).value = foodId;
+				let qtdMedida = f[5];
+				document.getElementById('qtdMedida-'+contexto).value = qtdMedida;
+				regraDeTresMedida(document.getElementById('qtdMedida-'+contexto),contexto);
+			}
+		}
+	}
 }

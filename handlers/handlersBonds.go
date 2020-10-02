@@ -12,9 +12,8 @@ import (
 )
 
 func CreateBondHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Create Bond")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		provider := r.FormValue("BondForInsert")
 		consumer := GetUserInCookie(w, r)
 		sqlStatement := "INSERT INTO bonds(service_provider_id, service_consumer_id) VALUES ($1, $2) RETURNING id"
@@ -26,14 +25,15 @@ func CreateBondHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		sec.CheckInternalServerError(err, w)
 		log.Println("INSERT: Id: " + strconv.Itoa(id))
+		http.Redirect(w, r, route.BondsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.BondsRoute, 301)
 }
 
 func UpdateBondHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Update Bond")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		provider := r.FormValue("ProviderIdForUpdate")
 		consumer := GetUserInCookie(w, r)
@@ -46,14 +46,15 @@ func UpdateBondHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		updtForm.Exec(provider, consumer, id)
 		log.Println("INSERT: Id: " + id)
+		http.Redirect(w, r, route.BondsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.BondsRoute, 301)
 }
 
 func DeleteBondHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Delete Bond")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		sqlStatement := "DELETE FROM bonds WHERE id=$1"
 		deleteForm, err := Db.Prepare(sqlStatement)
@@ -63,8 +64,10 @@ func DeleteBondHandler(w http.ResponseWriter, r *http.Request) {
 		deleteForm.Exec(id)
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
+		http.Redirect(w, r, route.BondsRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.BondsRoute, 301)
 }
 
 func DeleteBondsByRoleHandler(roleId string) {
@@ -91,66 +94,65 @@ func DeleteBondsHandler(diffDB []mdl.Bond) {
 func ListBondsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Bonds")
 	if !sec.IsAuthenticated(w, r) {
-		http.ServeFile(w, r, "tmpl/login.html")
-		return
-	}
-	currentUser := GetUserInCookie(w, r)
-	query := "SELECT " +
-		" a.id, " +
-		" coalesce(b.pro_id,'') as professional_id, " +
-		" b.name as provider_name, " +
-		" c.name as role_name " +
-		" FROM bonds a " +
-		" LEFT JOIN users b ON a.service_provider_id = b.id " +
-		" LEFT JOIN roles c ON b.role_id = c.id " +
-		" WHERE a.service_consumer_id = $1 " +
-		" ORDER BY 3, 2 asc"
-	log.Println(query)
-	rows, err := Db.Query(query, strconv.FormatInt(currentUser.Id, 10))
-	sec.CheckInternalServerError(err, w)
-	var bonds []mdl.Bond
-	var bond mdl.Bond
-	var i = 1
-	for rows.Next() {
-		err = rows.Scan(&bond.Id, &bond.ProId, &bond.ProviderName, &bond.ProviderRoleName)
+		currentUser := GetUserInCookie(w, r)
+		query := "SELECT " +
+			" a.id, " +
+			" coalesce(b.pro_id,'') as professional_id, " +
+			" b.name as provider_name, " +
+			" c.name as role_name " +
+			" FROM bonds a " +
+			" LEFT JOIN users b ON a.service_provider_id = b.id " +
+			" LEFT JOIN roles c ON b.role_id = c.id " +
+			" WHERE a.service_consumer_id = $1 " +
+			" ORDER BY 3, 2 asc"
+		log.Println(query)
+		rows, err := Db.Query(query, strconv.FormatInt(currentUser.Id, 10))
 		sec.CheckInternalServerError(err, w)
-		bond.Order = i
-		i++
-		bonds = append(bonds, bond)
-	}
+		var bonds []mdl.Bond
+		var bond mdl.Bond
+		var i = 1
+		for rows.Next() {
+			err = rows.Scan(&bond.Id, &bond.ProId, &bond.ProviderName, &bond.ProviderRoleName)
+			sec.CheckInternalServerError(err, w)
+			bond.Order = i
+			i++
+			bonds = append(bonds, bond)
+		}
 
-	query = "SELECT a.id, " +
-		" coalesce(a.pro_id,''), " +
-		" a.name, " +
-		" b.name as role_name " +
-		" FROM users a, roles b " +
-		" WHERE a.role_id = b.id AND " +
-		" (a.role_id = $1 OR (a.role_id = $2 AND a.author_id = $3))"
-	log.Println(query)
-	rows, err = Db.Query(query, ProfessionalRole, CareGiverRole, currentUser.Id)
-	sec.CheckInternalServerError(err, w)
-	var professionals []mdl.Bond
-	var professional mdl.Bond
-	i = 1
-	for rows.Next() {
-		err = rows.Scan(&professional.Id, &professional.ProId, &professional.ProviderName, &professional.ProviderRoleName)
+		query = "SELECT a.id, " +
+			" coalesce(a.pro_id,''), " +
+			" a.name, " +
+			" b.name as role_name " +
+			" FROM users a, roles b " +
+			" WHERE a.role_id = b.id AND " +
+			" (a.role_id = $1 OR (a.role_id = $2 AND a.author_id = $3))"
+		log.Println(query)
+		rows, err = Db.Query(query, ProfessionalRole, CareGiverRole, currentUser.Id)
 		sec.CheckInternalServerError(err, w)
-		professional.Order = i
-		i++
-		professionals = append(professionals, professional)
-	}
+		var professionals []mdl.Bond
+		var professional mdl.Bond
+		i = 1
+		for rows.Next() {
+			err = rows.Scan(&professional.Id, &professional.ProId, &professional.ProviderName, &professional.ProviderRoleName)
+			sec.CheckInternalServerError(err, w)
+			professional.Order = i
+			i++
+			professionals = append(professionals, professional)
+		}
 
-	var page mdl.PageBonds
-	page.Bonds = bonds
-	page.Pros = professionals
-	log.Println(len(professionals))
-	page.AppName = mdl.AppName
-	page.Title = "Vínculos"
-	page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
-	var tmpl = template.Must(template.ParseGlob("tiles/bonds/*"))
-	tmpl.ParseGlob("tiles/*")
-	tmpl.ExecuteTemplate(w, "Main-Bonds", page)
-	sec.CheckInternalServerError(err, w)
+		var page mdl.PageBonds
+		page.Bonds = bonds
+		page.Pros = professionals
+		log.Println(len(professionals))
+		page.AppName = mdl.AppName
+		page.Title = "Vínculos"
+		page.LoggedUser = BuildLoggedUser(GetUserInCookie(w, r))
+		var tmpl = template.Must(template.ParseGlob("tiles/bonds/*"))
+		tmpl.ParseGlob("tiles/*")
+		tmpl.ExecuteTemplate(w, "Main-Bonds", page)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
+	}
 }
 
 // AJAX

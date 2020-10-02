@@ -11,12 +11,8 @@ import (
 )
 
 func CreateMeasureHandler(w http.ResponseWriter, r *http.Request) {
-	if !sec.IsAuthenticated(w, r) {
-		http.ServeFile(w, r, "tmpl/login.html")
-		return
-	}
 	log.Println("Create Measure")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		name := r.FormValue("Name")
 		sqlStatement := "INSERT INTO Measures(name) VALUES ($1) RETURNING id"
 		id := 0
@@ -27,14 +23,15 @@ func CreateMeasureHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		sec.CheckInternalServerError(err, w)
 		log.Println("INSERT: Id: " + strconv.Itoa(id) + " | Name: " + name)
+		http.Redirect(w, r, route.MeasuresRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.MeasuresRoute, 301)
 }
 
 func UpdateMeasureHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Update Measure")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		name := r.FormValue("Name")
 		sqlStatement := "UPDATE measures SET name=$1 WHERE id=$2"
@@ -46,14 +43,15 @@ func UpdateMeasureHandler(w http.ResponseWriter, r *http.Request) {
 		sec.CheckInternalServerError(err, w)
 		updtForm.Exec(name, id)
 		log.Println("UPDATE: Id: " + id + " | Name: " + name)
+		http.Redirect(w, r, route.MeasuresRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.MeasuresRoute, 301)
 }
 
 func DeleteMeasureHandler(w http.ResponseWriter, r *http.Request) {
-	sec.IsAuthenticated(w, r)
 	log.Println("Delete Measure")
-	if r.Method == "POST" {
+	if r.Method == "POST" && sec.IsAuthenticated(w, r) {
 		id := r.FormValue("Id")
 		sqlStatement := "DELETE FROM Measures WHERE id=$1"
 		deleteForm, err := Db.Prepare(sqlStatement)
@@ -63,13 +61,14 @@ func DeleteMeasureHandler(w http.ResponseWriter, r *http.Request) {
 		deleteForm.Exec(id)
 		sec.CheckInternalServerError(err, w)
 		log.Println("DELETE: Id: " + id)
+		http.Redirect(w, r, route.MeasuresRoute, 301)
+	} else {
+		http.Redirect(w, r, "/logout", 301)
 	}
-	http.Redirect(w, r, route.MeasuresRoute, 301)
 }
 
 func ListMeasuresHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("List Measures")
-	sec.IsAuthenticated(w, r)
 	rows, err := Db.Query("SELECT * FROM measures")
 	sec.CheckInternalServerError(err, w)
 	var measures []mdl.Measure
@@ -90,5 +89,4 @@ func ListMeasuresHandler(w http.ResponseWriter, r *http.Request) {
 	var tmpl = template.Must(template.ParseGlob("tiles/measures/*"))
 	tmpl.ParseGlob("tiles/*")
 	tmpl.ExecuteTemplate(w, "Main-Measure", page)
-	sec.CheckInternalServerError(err, w)
 }

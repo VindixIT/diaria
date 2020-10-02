@@ -4,15 +4,14 @@ import (
 	"database/sql"
 	dpk "diaria/db"
 	hd "diaria/handlers"
-
+	"github.com/gorilla/mux"
 	//	sec "diaria/security "
 	route "diaria/routes"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
-
-	_ "github.com/lib/pq"
 )
 
 func determineListenAddress() (string, error) {
@@ -37,54 +36,55 @@ func main() {
 	// injeta	ndo a variável Authenticated
 	dpk.Initialize()
 	log.Println("O database está disponível.")
+	r := mux.NewRouter()
 	// injetando a variável Authenticated
-	http.HandleFunc("/", hd.IndexHandler)
-	http.HandleFunc("/login", hd.LoginHandler)
-	http.HandleFunc("/logout", hd.LogoutHandler)
-	// ----------------- FOODS
-	http.HandleFunc(route.FoodsRoute, hd.ListFoodsHandler)
-	http.HandleFunc("/createFood", hd.CreateFoodHandler)
-	http.HandleFunc("/updateFood", hd.UpdateFoodHandler)
-	http.HandleFunc("/deleteFood", hd.DeleteFoodHandler)
+	r.HandleFunc("/", hd.IndexHandler).Methods("GET")
+	r.HandleFunc("/login", hd.LoginHandler).Methods("POST")
+	r.HandleFunc("/logout", hd.LogoutHandler).Methods("GET")
+	// ----------------r.DS
+	r.HandleFunc(route.FoodsRoute, hd.ListFoodsHandler).Methods("GET")
+	r.HandleFunc("/createFood", hd.CreateFoodHandler).Methods("POST")
+	r.HandleFunc("/updateFood", hd.UpdateFoodHandler).Methods("POST")
+	r.HandleFunc("/deleteFood", hd.DeleteFoodHandler).Methods("POST")
 	// ----------------- MEAL TYPES
-	http.HandleFunc(route.MealTypesRoute, hd.ListMealTypesHandler)
-	http.HandleFunc("/createMealType", hd.CreateMealTypeHandler)
-	http.HandleFunc("/updateMealType", hd.UpdateMealTypeHandler)
-	http.HandleFunc("/deleteMealType", hd.DeleteMealTypeHandler)
+	r.HandleFunc(route.MealTypesRoute, hd.ListMealTypesHandler).Methods("GET")
+	r.HandleFunc("/createMealType", hd.CreateMealTypeHandler).Methods("POST")
+	r.HandleFunc("/updateMealType", hd.UpdateMealTypeHandler).Methods("POST")
+	r.HandleFunc("/deleteMealType", hd.DeleteMealTypeHandler).Methods("POST")
 	// ----------------- MEASURES
-	http.HandleFunc(route.MeasuresRoute, hd.ListMeasuresHandler)
-	http.HandleFunc("/createMeasure", hd.CreateMeasureHandler)
-	http.HandleFunc("/updateMeasure", hd.UpdateMeasureHandler)
-	http.HandleFunc("/deleteMeasure", hd.DeleteMeasureHandler)
+	r.HandleFunc(route.MeasuresRoute, hd.ListMeasuresHandler).Methods("GET")
+	r.HandleFunc("/createMeasure", hd.CreateMeasureHandler).Methods("POST")
+	r.HandleFunc("/updateMeasure", hd.UpdateMeasureHandler).Methods("POST")
+	r.HandleFunc("/deleteMeasure", hd.DeleteMeasureHandler).Methods("POST")
 	// ----------------- MEALS
-	http.HandleFunc(route.MealsRoute, hd.ListMealsHandler)
-	http.HandleFunc("/listMealsByFilter", hd.ListMealsHandler)
-	http.HandleFunc("/createMeal", hd.CreateMealHandler)
-	http.HandleFunc("/updateMeal", hd.UpdateMealHandler)
-	http.HandleFunc("/deleteMeal", hd.DeleteMealHandler)
+	r.HandleFunc(route.MealsRoute, hd.ListMealsHandler).Methods("GET")
+	r.HandleFunc("/listMealsByFilter", hd.ListMealsHandler).Methods("GET")
+	r.HandleFunc("/createMeal", hd.CreateMealHandler).Methods("POST")
+	r.HandleFunc("/updateMeal", hd.UpdateMealHandler).Methods("POST")
+	r.HandleFunc("/deleteMeal", hd.DeleteMealHandler).Methods("POST")
 	// ----------------- BONDS
-	http.HandleFunc(route.BondsRoute, hd.ListBondsHandler)
-	http.HandleFunc("/createBond", hd.CreateBondHandler)
-	http.HandleFunc("/updateBond", hd.UpdateBondHandler)
-	http.HandleFunc("/deleteBond", hd.DeleteBondHandler)
+	r.HandleFunc(route.BondsRoute, hd.ListBondsHandler).Methods("GET")
+	r.HandleFunc("/createBond", hd.CreateBondHandler).Methods("POST")
+	r.HandleFunc("/updateBond", hd.UpdateBondHandler).Methods("POST")
+	r.HandleFunc("/deleteBond", hd.DeleteBondHandler).Methods("POST")
 	// ----------------- FEATURES
-	http.HandleFunc(route.FeaturesRoute, hd.ListFeaturesHandler)
-	http.HandleFunc("/createFeature", hd.CreateFeatureHandler)
-	http.HandleFunc("/updateFeature", hd.UpdateFeatureHandler)
-	http.HandleFunc("/deleteFeature", hd.DeleteFeatureHandler)
+	r.HandleFunc(route.FeaturesRoute, hd.ListFeaturesHandler).Methods("GET")
+	r.HandleFunc("/createFeature", hd.CreateFeatureHandler).Methods("POST")
+	r.HandleFunc("/updateFeature", hd.UpdateFeatureHandler).Methods("POST")
+	r.HandleFunc("/deleteFeature", hd.DeleteFeatureHandler).Methods("POST")
 	// ----------------- ROLES
-	http.HandleFunc(route.RolesRoute, hd.ListRolesHandler)
-	http.HandleFunc("/createRole", hd.CreateRoleHandler)
-	http.HandleFunc("/updateRole", hd.UpdateRoleHandler)
-	http.HandleFunc("/deleteRole", hd.DeleteRoleHandler)
+	r.HandleFunc(route.RolesRoute, hd.ListRolesHandler).Methods("GET")
+	r.HandleFunc("/createRole", hd.CreateRoleHandler).Methods("POST")
+	r.HandleFunc("/updateRole", hd.UpdateRoleHandler).Methods("POST")
+	r.HandleFunc("/deleteRole", hd.DeleteRoleHandler).Methods("POST")
 	// ----------------- USERS
-	http.HandleFunc(route.UsersRoute, hd.ListUsersHandler)
-	http.HandleFunc("/createUser", hd.CreateUserHandler)
-	http.HandleFunc("/updateUser", hd.UpdateUserHandler)
-	http.HandleFunc("/deleteUser", hd.DeleteUserHandler)
+	r.HandleFunc(route.UsersRoute, hd.ListUsersHandler).Methods("GET")
+	r.HandleFunc("/createUser", hd.CreateUserHandler).Methods("POST")
+	r.HandleFunc("/updateUser", hd.UpdateUserHandler).Methods("POST")
+	r.HandleFunc("/deleteUser", hd.DeleteUserHandler).Methods("POST")
 	// ----------------- AJAX
-	http.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId)
-	http.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite)
+	r.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId)
+	r.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite)
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),
