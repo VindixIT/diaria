@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	dpk "diaria/db"
 	hd "diaria/handlers"
+	rep "diaria/reports"
 	"github.com/gorilla/mux"
 	//	sec "diaria/security "
 	route "diaria/routes"
@@ -58,7 +59,7 @@ func main() {
 	r.HandleFunc("/deleteMeasure", hd.DeleteMeasureHandler).Methods("POST")
 	// ----------------- MEALS
 	r.HandleFunc(route.MealsRoute, hd.ListMealsHandler).Methods("GET")
-	r.HandleFunc("/listMealsByFilter", hd.ListMealsHandler).Methods("GET")
+	r.HandleFunc("/listMealsByFilter", hd.ListMealsHandler).Methods("POST")
 	r.HandleFunc("/createMeal", hd.CreateMealHandler).Methods("POST")
 	r.HandleFunc("/updateMeal", hd.UpdateMealHandler)
 	r.HandleFunc("/deleteMeal", hd.DeleteMealHandler).Methods("POST")
@@ -85,6 +86,7 @@ func main() {
 	// ----------------- AJAX
 	r.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId).Methods("GET")
 	r.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite).Methods("GET")
+	r.HandleFunc("/downloadMealsReport", rep.DownloadMealsReport).Methods("GET")
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),

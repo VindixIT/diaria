@@ -28,7 +28,8 @@
 	        <table class="w3-table w3-centered w3-border w3-bordered w3-hoverable">
 	            <thead>
 	            <tr>
-					<form class="w3-container" style="padding: 0px" action="/listMealsByFilter" method="POST">
+					<form class="w3-container" id="listMealsForm" style="padding: 0px" 
+						action="/listMealsByFilter" method="POST">
 		                <th colspan="2" style="vertical-align: baseline;">Cliente:</th>
 		                <th colspan="2">
 				            <select class="w3-input" name="ClientFilter" id="ClientFilter">
@@ -43,7 +44,16 @@
 		                <th >Período</th>
 		                <th colspan="2"><input class="w3-input" type="date" id="BeginDateFilter" name="BeginDateFilter" value="{{$.Filter.BeginDate}}"></th>
 		                <th colspan="2"><input class="w3-input" type="date" id="EndDateFilter" name="EndDateFilter" value="{{$.Filter.EndDate}}"></th>
-		                <th colspan="2"><button class="w3-btn w3-gray" type="submit">Filtrar</button></th>
+		                <th>
+							<a href="#" onclick="document.getElementById('listMealsForm').submit()">
+								<i class="icon ion-ios-eye w3-xxlarge hoverbtn"></i>
+							</a>
+						</th>
+		                <th>
+							<a href="#" onclick="downloadMealsReport()">
+								<i class="icon ion-ios-download-outline w3-xxlarge hoverbtn"></i>
+							</a>
+						</th>
 					</form>
 	            </tr>
 	            <tr>

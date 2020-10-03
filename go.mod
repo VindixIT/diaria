@@ -8,7 +8,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/lib/pq v1.8.0
 	github.com/mikeshimura/dbflute v0.0.0-20181210061525-0fbcf5595ee8 // indirect
-	github.com/mikeshimura/goreport v0.0.0-20191119232708-1be22c2ece7d // indirect
+	github.com/mikeshimura/goreport v0.0.0-20191119232708-1be22c2ece7d
 	github.com/phpdave11/gofpdi v1.0.13 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/signintech/gopdf v0.9.12 // indirect

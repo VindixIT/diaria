@@ -99,6 +99,19 @@ type Meal struct {
 	AuthorName   string   `json:"author"`
 }
 
+type MealLineReport struct {
+	CDate        string
+	MealTypeName string
+	CStartAt     string
+	CEndAt       string
+	Bolus        string
+	FoodName     string
+	QtdMedida    string
+	Qtd          string
+	Cho          string
+	Kcal         string
+}
+
 type NullTime struct {
 	pq.NullTime
 }

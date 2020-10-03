@@ -20,7 +20,7 @@
 					<option value=""></option>
 					{{range $index, $favItem := .FavoriteItems }}
 	                <option value="{{$favItem.Id}}">
-						{{$favItem.FoodName}}
+						{{$favItem.FoodName}} ( {{$favItem.QtdMedida}} Medidas )
 					</option>
 					<script>
 						n++;

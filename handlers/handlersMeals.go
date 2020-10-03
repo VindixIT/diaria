@@ -270,7 +270,7 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 			filter.EndDate = endDateFilter
 			log.Println("1: BeginDate: " + beginDateFilter + " - EndDate: " + endDateFilter)
 			if beginDateFilter != "" && endDateFilter != "" {
-				snippet2 = " and (a.date BETWEEN to_date('" + beginDateFilter +
+				snippet2 = " AND (a.date BETWEEN to_date('" + beginDateFilter +
 					"','YYYY-MM-DD') AND TO_DATE('" + endDateFilter + "','YYYY-MM-DD')) "
 			}
 		} else {
@@ -316,8 +316,8 @@ func ListMealsHandler(w http.ResponseWriter, r *http.Request) {
 			" WHERE a.meal_type_id = b.id " +
 			" AND c.id = a.author_id " +
 			" AND (a.author_id " + snippet1 +
-			snippet2 +
 			" OR a.author_id = " + curId + ") " +
+			snippet2 +
 			" order by a.id desc " +
 			" ) R1 LEFT OUTER JOIN " +
 			" (SELECT a.id as meal_id, " +

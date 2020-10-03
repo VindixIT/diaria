@@ -1,3 +1,10 @@
+# github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575
+## explicit
+github.com/cihub/seelog
+github.com/cihub/seelog/archive
+github.com/cihub/seelog/archive/gzip
+github.com/cihub/seelog/archive/tar
+github.com/cihub/seelog/archive/zip
 # github.com/gorilla/mux v1.8.0
 ## explicit
 github.com/gorilla/mux
@@ -11,6 +18,26 @@ github.com/gorilla/sessions
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
+# github.com/mikeshimura/dbflute v0.0.0-20181210061525-0fbcf5595ee8
+## explicit
+github.com/mikeshimura/dbflute/df
+github.com/mikeshimura/dbflute/log
+# github.com/mikeshimura/goreport v0.0.0-20191119232708-1be22c2ece7d
+## explicit
+github.com/mikeshimura/goreport
+# github.com/phpdave11/gofpdi v1.0.13
+## explicit
+github.com/phpdave11/gofpdi
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
+# github.com/signintech/gopdf v0.9.12
+## explicit
+github.com/signintech/gopdf
+github.com/signintech/gopdf/fontmaker/core
+# github.com/streamrail/concurrent-map v0.0.0-20160823150647-8bf1e9bacbf6
+## explicit
+github.com/streamrail/concurrent-map
 # github.com/unidoc/unidoc v2.2.0+incompatible
 ## explicit
 github.com/unidoc/unidoc/common

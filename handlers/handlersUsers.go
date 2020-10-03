@@ -111,13 +111,12 @@ func ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 			"FROM users a LEFT JOIN roles b ON a.role_id = b.id" +
 			where_part + " order by a.name "
 		log.Println("Query: " + query)
-		rows, err := Db.Query(query)
-		sec.CheckInternalServerError(err, w)
+		rows, _ := Db.Query(query)
 		var users []mdl.User
 		var user mdl.User
 		var i = 1
 		for rows.Next() {
-			err = rows.Scan(&user.Id,
+			rows.Scan(&user.Id,
 				&user.Name,
 				&user.Username,
 				&user.Password,
@@ -127,7 +126,6 @@ func ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 				&user.RoleName)
 			user.Order = i
 			i++
-			sec.CheckInternalServerError(err, w)
 			users = append(users, user)
 		}
 		where_part = ""
@@ -136,17 +134,15 @@ func ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		query = "SELECT id, name FROM roles " + where_part + "ORDER BY name asc"
 		log.Println("Query Roles: " + query)
-		rows, err = Db.Query(query)
-		sec.CheckInternalServerError(err, w)
+		rows, _ = Db.Query(query)
 		var roles []mdl.Role
 		var role mdl.Role
 		i = 1
 		for rows.Next() {
-			err = rows.Scan(&role.Id,
+			rows.Scan(&role.Id,
 				&role.Name)
 			role.Order = i
 			i++
-			sec.CheckInternalServerError(err, w)
 			roles = append(roles, role)
 		}
 		var page mdl.PageUsers
@@ -158,7 +154,6 @@ func ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 		var tmpl = template.Must(template.ParseGlob("tiles/users/*"))
 		tmpl.ParseGlob("tiles/*")
 		tmpl.ExecuteTemplate(w, "Main-Users", page)
-		sec.CheckInternalServerError(err, w)
 	} else {
 		http.Redirect(w, r, "/logout", 301)
 	}
