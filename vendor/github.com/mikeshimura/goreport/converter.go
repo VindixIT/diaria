@@ -49,7 +49,7 @@ func (p *Converter) Execute() {
 		case "TC":
 			p.TextColor(line, eles)
 		case "SC":
-			p.StrokeColor(line, eles)
+            		p.StrokeColor(line, eles)
 		case "GF", "GS":
 			p.Grey(line, eles)
 		case "C", "C1", "CR":
@@ -149,9 +149,9 @@ func (p *Converter) TextColor(line string, eles []string) {
 		uint8(AtoiPanic(eles[2], line)), uint8(AtoiPanic(eles[3], line)))
 }
 func (p *Converter) StrokeColor(line string, eles []string) {
-	CheckLength(line, eles, 4)
-	p.Pdf.SetStrokeColor(uint8(AtoiPanic(eles[1], line)),
-		uint8(AtoiPanic(eles[2], line)), uint8(AtoiPanic(eles[3], line)))
+    CheckLength(line, eles, 4)
+    p.Pdf.SetStrokeColor(uint8(AtoiPanic(eles[1], line)),
+        uint8(AtoiPanic(eles[2], line)), uint8(AtoiPanic(eles[3], line)))
 }
 func (p *Converter) Oval(line string, eles []string) {
 	CheckLength(line, eles, 5)
