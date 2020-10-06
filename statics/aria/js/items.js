@@ -175,7 +175,7 @@ function markItemAsFavorite(item, mealTypeId, starred){
 	xmlhttp.send();
 }
 
-function preencherItemFavorito(favItemId){
+function preencherItemFavorito(favItemId, formulario){
 	for(n=0;n<favitems_ar.length;n++){
 		favId = favitems_ar[n];
 		if(favId){
@@ -184,10 +184,10 @@ function preencherItemFavorito(favItemId){
 			if(f[0]==favItemId){
 				// {{$favItem.Id}}#{{$favItem.FoodId}}#{{$favItem.FoodName}}#{{$favItem.MealTypeId}}#{{$favItem.MealTypeName}}#{{$favItem.QtdMedida}}#{{$favItem.Qtd}}#{{$favItem.AuthorId}}
 				let foodId = f[1];
-				document.getElementById('alimento-'+contexto).value = foodId;
+				document.getElementById('alimento-'+formulario).value = foodId;
 				let qtdMedida = f[5];
-				document.getElementById('qtdMedida-'+contexto).value = qtdMedida;
-				regraDeTresMedida(document.getElementById('qtdMedida-'+contexto),contexto);
+				document.getElementById('qtdMedida-'+formulario).value = qtdMedida;
+				regraDeTresMedida(document.getElementById('qtdMedida-'+formulario),formulario);
 				return;
 			}
 		}

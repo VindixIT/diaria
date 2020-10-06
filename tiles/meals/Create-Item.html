@@ -16,7 +16,7 @@
 					var favitems_ar = [];
 					var n = 0;
 				</script>	
-	            <select class="w3-input" onchange="preencherItemFavorito(this.value)" id="favItem-create">
+	            <select class="w3-input" onchange="preencherItemFavorito(this.value,'create')" id="favItem-create">
 					<option value=""></option>
 					{{range $index, $favItem := .FavoriteItems }}
 	                <option value="{{$favItem.Id}}">

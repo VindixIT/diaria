@@ -86,7 +86,7 @@ func main() {
 	// ----------------- AJAX
 	r.HandleFunc("/loadFeaturesByRoleId", hd.LoadFeaturesByRoleId).Methods("GET")
 	r.HandleFunc("/markItemAsFavorite", hd.MarkItemAsFavorite).Methods("GET")
-	r.HandleFunc("/downloadMealsReport", rep.DownloadMealsReport).Methods("GET")
+	r.HandleFunc("/downloadReport", rep.DownloadReport).Methods("GET")
 	// ----------------- STATICS
 	http.Handle("/statics/",
 		http.StripPrefix("/statics/", http.FileServer(http.Dir("./statics"))),

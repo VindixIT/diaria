@@ -12,7 +12,7 @@
 
             <form class="w3-container">
                 <label class="w3-label">Meus Itens Favoritos</label>
-	            <select class="w3-input" onchange="preencherItemFavorito(this.value)" id="favItem-edit">
+	            <select class="w3-input" onchange="preencherItemFavorito(this.value,'edit')" id="favItem-edit">
 					<option value=""></option>
 					{{range $index, $favItem := .FavoriteItems }}
 	                <option value="{{$favItem.Id}}">

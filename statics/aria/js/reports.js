@@ -5,9 +5,9 @@ function downloadMealsReport(){
 	{
 			if (xmlhttp.readyState==4 && xmlhttp.status==200)
 			{
-				console.log("downloadMealsReport OK");
+				window.location = 'downloadReport';
 			}
 	}
-	xmlhttp.open("GET","/downloadMealsReport",true);
+	xmlhttp.open("GET","/downloadReport",true);
 	xmlhttp.send();
 }
