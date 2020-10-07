@@ -15,12 +15,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	
 )
 
 var Db *sql.DB
 
 func DownloadReport(w http.ResponseWriter, r *http.Request) {
-	log.Println("DownloadMealsReport - entrei")
+	//log.Println("DownloadMealsReport - entrei")
 	Db = hd.Db
 	currentUser := hd.GetUserInCookie(w, r)
 	records := LoadMealLines(currentUser.Id)
@@ -30,7 +31,7 @@ func DownloadReport(w http.ResponseWriter, r *http.Request) {
 	fileSize := len(string(downloadBytes))
 	log.Println("fileSize: " + strconv.Itoa(fileSize))
 	w.Header().Set("Content-Type", "application/pdf")
-	w.Header().Set("Content-Disposition", "attachment; filename=report.pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename=meal_report.pdf")
 	w.Header().Set("Expires", "0")
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	w.Header().Set("Content-Length", strconv.Itoa(fileSize))
@@ -72,11 +73,11 @@ func LoadMealLines(id int64) []interface{} {
 			campo3  string
 			campo4  string
 			campo5  string
-			campo6  string
+			campo6  float64
 			campo7  string
 			campo8  string
 			campo9  string
-			campo10 string
+			campo10  string
 		)
 		rows.Scan(&campo0, &campo1, &campo2, &campo3, &campo4, &campo5, &campo6, &campo7, &campo8, &campo9, &campo10)
 		cols[0] = campo0
@@ -85,15 +86,18 @@ func LoadMealLines(id int64) []interface{} {
 		cols[3] = campo3
 		cols[4] = campo4
 		cols[5] = campo5
-		cols[6] = campo6
+		cols[6] = strconv.FormatFloat(campo6, 'f', 2, 64)
 		cols[7] = campo7
 		cols[8] = campo8
 		cols[9] = campo9
 		cols[10] = campo10
+		
 		lines = append(lines, cols)
 	}
 	return lines
 }
+
+
 
 func GetDate(dias int) string {
 	br, _ := time.LoadLocation("America/Sao_Paulo")

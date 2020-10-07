@@ -46,7 +46,7 @@ func CreateMealHandler(w http.ResponseWriter, r *http.Request) {
 				array := strings.Split(value[0], "#")
 				foodid := strings.Split(array[2], ":")[1]
 				qtdMedida := extraiValor(strings.Split(array[4], ":"))
-				//				log.Println(qtdMedida)
+				log.Println(qtdMedida)
 				qtd := extraiValor(strings.Split(array[5], ":"))
 				cho := extraiValor(strings.Split(array[6], ":"))
 				kcal := extraiValor(strings.Split(array[7], ":"))

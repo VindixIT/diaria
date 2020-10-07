@@ -13,7 +13,7 @@ func Medium1(records []interface{}) string {
 	r := gr.CreateGoReport()
 	//Page Total Function
 	r.PageTotal = true
-	r.SumWork["amountcum"] = 0.0
+	//r.SumWork["amountcum"] = 0.0
 	r.SumWork["g1item"] = 0.0
 	r.SumWork["g1cum"] = 0.0
 	font1 := gr.FontMap{
@@ -37,7 +37,7 @@ func Medium1(records []interface{}) string {
 	//fmt.Printf("Records %v \n", r.Records)
 	r.SetPage("A4", "mm", "L")
 	r.SetFooterY(190)
-	pathReport := "./statics/reports/medium1.pdf"
+	pathReport := "./statics/reports/repMed1.pdf"
 	r.Execute(pathReport)
 	//	r.SaveText("medium1.txt")
 	log.Println(pathReport)
@@ -53,19 +53,19 @@ func (h M1Detail) GetHeight(report gr.GoReport) float64 {
 func (h M1Detail) Execute(report gr.GoReport) {
 	cols := report.Records[report.DataPos].([]string)
 	report.Font("IPAexG", 12, "")
-	y := 2.0
+	y := 10.0
 	report.Cell(10, y, cols[0])
 	report.Cell(40, y, cols[1])
-	report.Cell(70, y, cols[2])
-	report.Cell(90, y, cols[3])
-	report.Cell(110, y, cols[4])
-	report.Cell(130, y, cols[5])
-	report.Cell(180, y, cols[6])
-	report.Cell(200, y, cols[7])
-	report.Cell(220, y, cols[8])
-	report.Cell(240, y, cols[9])
+	report.Cell(80, y, cols[2])
+	report.Cell(100, y, cols[3])
+	report.Cell(120, y, cols[4])
+	report.Cell(135, y, cols[5])
+	report.Cell(195, y, cols[6])
+	report.Cell(220, y, cols[7])
+	report.Cell(245, y, cols[8])
+	report.Cell(265, y, cols[9])
 	amt := ParseFloatNoError(cols[8])
-	report.SumWork["amountcum="] += amt
+	//report.SumWork["amountcum="] += amt
 	report.SumWork["g1item"] += 1.0
 	report.SumWork["g1cum"] += amt
 }
@@ -104,32 +104,35 @@ func (h M1Header) GetHeight(report gr.GoReport) float64 {
 	return 30
 }
 func (h M1Header) Execute(report gr.GoReport) {
+	//Inicio Config de fonte e linhas do topo
 	report.Font("IPAexG", 14, "")
-	report.LineType("straight", 8)
-	report.GrayStroke(0.9)
-	report.LineH(48, 13, 81)
-	report.GrayStroke(0)
-	report.LineType("straight", 0.5)
-	report.Rect(48, 13, 81, 21)
-	report.Cell(50, 15, "Meals Report")
-	report.Font("IPAexG", 12, "")
-	report.Cell(245, 20, "page")
-	report.CellRight(253, 20, 10, strconv.Itoa(report.Page))
-	report.Cell(264, 20, "of")
-	report.CellRight(268, 20, 10, "{#TotalPage#}")
-	y := 23.0
+	report.LineType("straight", 1)
+	report.GrayStroke(0.9)    // espessura
+	report.LineH(10, 25, 250) //tamanho da linha cinza clara X,Y,Size
+	report.GrayStroke(0)      //GrayStroke - mudei o nome da cor da linha...
+	//Fim 1 config
+	//Config Nome relatorio e espes. linha
+	report.LineType("straight", 0.4) //Linha acima do Nome relatorio
+	//report.Rect(48, 13, 81, 21) # Retangulo circulando o titulo do relatorio abaixo
+	report.Cell(15, 15, "Meals Report") //Nome do relatorio
+	report.Image("Icon_diaria.png", 238, 5, 271, 25)
+	report.Font("IPAexG", 14, "")
+	//fim config 2
+	//CONFIG campos
+	y := 27.0
 	report.Cell(10, y, "Data")
 	report.Cell(40, y, "Refeição")
-	report.Cell(70, y, "Início")
-	report.Cell(90, y, "Término")
-	report.Cell(110, y, "Bolus")
-	report.Cell(130, y, "Alimento")
-	report.Cell(180, y, "Qtd Medida")
-	report.Cell(200, y, "Qtd")
-	report.Cell(220, y, "CHO")
-	report.Cell(240, y, "Kcal")
-	report.LineType("straight", 0.2)
-	report.LineH(15, 28, 220)
+	report.Cell(80, y, "Início")
+	report.Cell(100, y, "Término")
+	report.Cell(120, y, "Bolus") //
+	report.Cell(135, y, "Alimento")
+	report.Cell(185, y, "Qtd-Medida")
+	report.Cell(220, y, "Qtd")
+	report.Cell(240, y, "CHO")
+	report.Cell(255, y, "Kcal")
+	report.LineType("straight", 0.2) //espessura da linha abaixo dos campos
+	report.LineH(10, 35, 280)        //comprimento linha
+	//Fim Config
 }
 
 type M1G1Summary struct {
@@ -145,17 +148,20 @@ func (h M1G1Summary) GetHeight(report gr.GoReport) float64 {
 func (h M1G1Summary) Execute(report gr.GoReport) {
 	//Conditional print  if item==1 not print
 	if report.SumWork["g1item"] != 1.0 {
-		report.Cell(80, 2, "Item")
-		report.CellRight(100, 2, 10, strconv.FormatFloat(
+		report.LineType("straight", 0.4) //linha
+		report.LineH(10, 17, 280)        //linha superior clara
+		report.Cell(100, 12, "Itens: ")  // X, Y, Nome
+		report.CellRight(107, 12, 10, strconv.FormatFloat(
 			report.SumWork["g1item"], 'f', 0, 64))
-		report.Cell(150, 2, "Total CHO")
-		report.CellRight(180, 2, 30, strconv.FormatFloat(
+		report.Cell(220, 12, "Total CHO: ") // CHO embaixo de CHO
+		report.CellRight(240, 12, 30, strconv.FormatFloat(
 			report.SumWork["g1cum"], 'f', 2, 64))
-		report.LineType("straight", 0.2)
-		report.LineH(15, 7, 220)
+		report.LineType("straight", 0.8)
+		report.LineH(10, 10, 280) //linha inferior
+		//report.LineH(0,0,0)
 	} else {
-		report.LineType("straight", 0.2)
-		report.LineH(15, -3, 220)
+		report.LineType("straight", 0.8)
+		report.LineH(10, 10, 280)
 	}
 	report.SumWork["g1item"] = 0.0
 	report.SumWork["g1cum"] = 0.0
@@ -168,8 +174,8 @@ func (h M1Summary) GetHeight(report gr.GoReport) float64 {
 	return 10
 }
 func (h M1Summary) Execute(report gr.GoReport) {
-	report.Cell(160, 2, "Total")
-	report.CellRight(180, 2, 30, strconv.FormatFloat(
+	report.Cell(300, 10, "Total")
+	report.CellRight(300, 102, 30, strconv.FormatFloat(
 		report.SumWork["amountcum"], 'f', 2, 64))
 }
 
@@ -180,5 +186,11 @@ func (h M1Footer) GetHeight(report gr.GoReport) float64 {
 	return 10
 }
 func (h M1Footer) Execute(report gr.GoReport) {
-	report.Cell(160, 2, "Footer Sample")
+	//CONFIG do "page, 1, of, 1" linhas 116 a 119
+	report.Cell(245, 5, "page")                             //distancia H, dist V, Nome
+	report.CellRight(253, 5, 10, strconv.Itoa(report.Page)) //1
+	report.Cell(264, 5, "of")                               //of
+	report.CellRight(265, 5, 10, "{#TotalPage#}")
+	//Fim desse config
+
 }
