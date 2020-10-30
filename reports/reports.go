@@ -15,7 +15,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
 )
 
 var Db *sql.DB
@@ -77,7 +76,7 @@ func LoadMealLines(id int64) []interface{} {
 			campo7  string
 			campo8  string
 			campo9  string
-			campo10  string
+			campo10 string
 		)
 		rows.Scan(&campo0, &campo1, &campo2, &campo3, &campo4, &campo5, &campo6, &campo7, &campo8, &campo9, &campo10)
 		cols[0] = campo0
@@ -91,13 +90,11 @@ func LoadMealLines(id int64) []interface{} {
 		cols[8] = campo8
 		cols[9] = campo9
 		cols[10] = campo10
-		
+
 		lines = append(lines, cols)
 	}
 	return lines
 }
-
-
 
 func GetDate(dias int) string {
 	br, _ := time.LoadLocation("America/Sao_Paulo")

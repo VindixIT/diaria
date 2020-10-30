@@ -1,5 +1,11 @@
 {{ define "Menu" }}
-<div id="mySidenav" class="sidenav">
+
+<div id="mySidenav" class="sidenav" style="background-color:white" >
+	<center><img src="/statics/images/diaria.png" 
+		alt="diÁria" 
+		sytle="position: absolute; left: 50px;"
+		width="160px">&nbsp;&nbsp;&nbsp;&nbsp;</center>
+		<br>
   <a href="javascript:void(0)" class="closebtn" onclick="navGadget()">&times;</a>
   <a href="#">Sobre</a>
   {{if (call .LoggedUser.HasPermission "listMeals")}}

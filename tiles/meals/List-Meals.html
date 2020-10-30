@@ -75,7 +75,7 @@
 	            {{range $index, $meal := .Meals }}
 					{{if or (eq $index 0) (ne $auxData $meal.CDate)}}
 		            <tr>
-		                <td colspan="11" bgcolor="lightgreen" style="font-size:1.2em;text-align:left">{{$meal.CDate}}</td>
+		                <td colspan="11" bgcolor="lightblue" style="font-size:1.2em;text-align:left">{{$meal.CDate}}</td>
 	            	</tr>
 					{{$auxData = $meal.CDate }}
 					{{end}}
